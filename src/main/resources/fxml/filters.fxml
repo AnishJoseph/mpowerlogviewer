@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.TextField?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.hexgen.FilterController" >
+    <CheckBox fx:id="tidChkbox" text="Thread ID Filter" onAction="#tidChkBoxClicked"/>
+    <TextField fx:id="tidText" visible="false"/>
+    <CheckBox fx:id="jobIdChkbox" text="Job ID Filter" onAction="#jobIdChkBoxClicked"/>
+    <TextField fx:id="jobIdText" visible="false"/>
+</VBox>
