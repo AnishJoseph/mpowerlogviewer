@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -26,11 +27,12 @@ public class MPowerLogViewer extends Application {
     private static String logFilename = null;
 
     private LogTableController logTableController;
+    private LogFileReader logFileReader = null;
 
     @Override
     public void start(Stage primaryStage) {
         try {
-            LogFileReader logFileReader = new LogFileReader();
+            logFileReader = new LogFileReader();
             logFileReader.readFile(logFilename);
             FXMLLoader loader = new FXMLLoader(MPowerLogViewer.class.getResource("/fxml/LogTable.fxml"));
 
@@ -43,16 +45,15 @@ public class MPowerLogViewer extends Application {
             border.setLeft(createFilterPane());
             border.setCenter(logRecordsView);
 
-            Scene scene = new Scene(border);
+            Scene scene = new Scene(border, 1000, 800);
             primaryStage.setTitle("mPower Log Analyser");
             primaryStage.setScene(scene);
+
             primaryStage.setFullScreen(true);
             primaryStage.show();
             primaryStage.setOnCloseRequest(event -> {
                 LogFileReader.setRunning(false);
             });
-            logTableController = loader.getController();
-            System.out.println("s");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -94,13 +95,12 @@ public class MPowerLogViewer extends Application {
 
         openItem.setOnAction(e -> {
             System.out.println("File->Open Selected");
+            logFileReader.readFile("/tmp/mpower/logs/im_debug.log");
         });
         aboutItem.setOnAction(e -> {
             System.out.println("Help->About Selected");
         });
-        exitItem.setOnAction(e -> {
-            System.out.println("File->Exit Selected");
-        });
+        exitItem.setOnAction(e -> Platform.exit());
 
         return menuBar;
     }
@@ -111,6 +111,7 @@ public class MPowerLogViewer extends Application {
             filterVBox = loader.load();
             FilterController filterController = loader.getController();
             filterController.setLogTableController(logTableController);
+            filterController.setFilters(logTableController.getFilters());
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(4);

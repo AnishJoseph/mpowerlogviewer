@@ -33,6 +33,7 @@ public class LogFileReader extends Thread {
     }
 
     public void readFile(String logFilename) {
+        masterData.clear();
         String line = null;
         FileInputStream fs = null;
         BufferedReader br = null;

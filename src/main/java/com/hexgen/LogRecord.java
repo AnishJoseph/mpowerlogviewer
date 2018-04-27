@@ -25,6 +25,7 @@ public class LogRecord {
     private final SimpleObjectProperty<Integer> line;
     private final StringProperty msg;
     private String timeFormatted = "";
+    private boolean hidden = false;
 
 
     public LogRecord(Long id, String user, String company, Long jobId, Long xActionId, LocalDateTime time, String thread, String level, String className, Long line, String msg) {
@@ -184,5 +185,13 @@ public class LogRecord {
 
     public void setTimeFormatted(String timeFormatted) {
         this.timeFormatted = timeFormatted;
+    }
+
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
     }
 }

@@ -5,9 +5,15 @@
 
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.DatePicker?>
 <VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.hexgen.FilterController" >
     <CheckBox fx:id="tidChkbox" text="Thread ID Filter" onAction="#tidChkBoxClicked"/>
     <TextField fx:id="tidText" visible="false"/>
     <CheckBox fx:id="jobIdChkbox" text="Job ID Filter" onAction="#jobIdChkBoxClicked"/>
     <TextField fx:id="jobIdText" visible="false"/>
+    <CheckBox fx:id="timeChkbox" text="Time Filter" onAction="#timeChkBoxClicked"/>
+    <CheckBox fx:id="timeAfterChkbox" text="Show After" visible="false" selected="true"/>
+    <DatePicker fx:id="timeAfterText" visible="false"/>
+    <CheckBox fx:id="timeBeforeChkbox" text="Show Before" visible="false" selected="true"/>
+    <DatePicker fx:id="timeBeforeText" visible="false" />
 </VBox>

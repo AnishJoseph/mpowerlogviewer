@@ -15,6 +15,8 @@ import javafx.scene.control.TextField;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -55,7 +57,7 @@ public class LogTableController extends Thread{
     private ObservableList<LogRecord> masterData = null;
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yy HH:mm:ss.SSS");
     private FilteredList<LogRecord> filteredData = null;
-
+    private Map<String, Filter> filters = new HashMap<>();
     /**
      * Initializes the controller class. This method is automatically called
      * after the fxml file has been loaded.
@@ -64,6 +66,16 @@ public class LogTableController extends Thread{
      */
     @FXML
     private void initialize() {
+        filters.put("timeAfter", new Filter(false, ""));
+        filters.put("timeBefore", new Filter(false, ""));
+        filters.put("jobId", new Filter(false, ""));
+        filters.put("xActionId", new Filter(false, ""));
+        filters.put("level", new Filter(false, ""));
+        filters.put("user", new Filter(false, ""));
+        filters.put("threadId", new Filter(false, ""));
+        filters.put("regex", new Filter(false, ""));
+        filters.put("msg", new Filter(false, ""));
+        filters.put("globalSearch", new Filter(true, ""));
 
         masterData = LogFileReader.getMasterData();
         // 0. Initialize the columns.
@@ -94,37 +106,8 @@ public class LogTableController extends Thread{
 
         // 2. Set the filter Predicate whenever the filter changes.
         filterField.textProperty().addListener((observable, oldValue, newValue) -> {
-            filteredData.setPredicate(logRecord -> {
-                // If filter text is empty, display all records.
-                if (newValue == null || newValue.isEmpty()) {
-                    return true;
-                }
-
-                String lowerCaseFilter = newValue.toLowerCase();
-
-                if (logRecord.userProperty() != null && logRecord.getUser().toLowerCase().contains(lowerCaseFilter)) {
-                    return true; 
-                } else if (logRecord.companyProperty() != null && logRecord.getCompany().toLowerCase().contains(lowerCaseFilter)) {
-                    return true; 
-                } else if (logRecord.levelProperty() != null && logRecord.getLevel().toLowerCase().contains(lowerCaseFilter)) {
-                    return true; 
-                } else if (logRecord.classNameProperty() != null && logRecord.getClassName().toLowerCase().contains(lowerCaseFilter)) {
-                    return true; 
-                } else if (logRecord.msgProperty() != null && logRecord.getMsg().toLowerCase().contains(lowerCaseFilter)) {
-                    return true; 
-                } else if (logRecord.idProperty() != null && logRecord.getId().toString().contains(lowerCaseFilter)) {
-                    return true; 
-                } else if (logRecord.jobIdProperty() != null && logRecord.getJobId().toString().contains(lowerCaseFilter)) {
-                    return true; 
-                } else if (logRecord.xActionIdProperty() != null && logRecord.getxActionId().toString().contains(lowerCaseFilter)) {
-                    return true; 
-                } else if (logRecord.lineProperty() != null && logRecord.getLine().toString().contains(lowerCaseFilter)) {
-                    return true;
-                } else if (logRecord.getTimeFormatted().contains(lowerCaseFilter)) {
-                    return true;
-                }
-                return false; // Does not match.
-            });
+            this.filters.get("globalSearch").setSearchStr(newValue);
+            filter();
         });
 
         // 3. Wrap the FilteredList in a SortedList.
@@ -136,35 +119,164 @@ public class LogTableController extends Thread{
         // 5. Add sorted (and filtered) data to the table.
         logTable.setItems(sortedData);
     }
-
-    public void filterForThreadId(String searchStr){
+    private void filterForGlobalSearch(String searchStr, boolean firstCheck){
         filteredData.setPredicate(logRecord -> {
-            if (searchStr == null || searchStr.isEmpty()) {
-                return true;
-            }
-
             String lowerCaseFilter = searchStr.toLowerCase();
 
-            if (logRecord.threadProperty() != null && logRecord.getThread().toLowerCase().contains(lowerCaseFilter)) {
+            if(firstCheck) {
+                logRecord.setHidden(false);
+            } else {
+                if(logRecord.isHidden()) {
+                    return  false;
+                }
+            }
+            if (logRecord.userProperty() != null && logRecord.getUser().toLowerCase().contains(lowerCaseFilter)) {
+                logRecord.setHidden(false);
+                return true;
+            } else if (logRecord.companyProperty() != null && logRecord.getCompany().toLowerCase().contains(lowerCaseFilter)) {
+                logRecord.setHidden(false);
+                return true;
+            } else if (logRecord.levelProperty() != null && logRecord.getLevel().toLowerCase().contains(lowerCaseFilter)) {
+                logRecord.setHidden(false);
+                return true;
+            } else if (logRecord.classNameProperty() != null && logRecord.getClassName().toLowerCase().contains(lowerCaseFilter)) {
+                logRecord.setHidden(false);
+                return true;
+            } else if (logRecord.msgProperty() != null && logRecord.getMsg().toLowerCase().contains(lowerCaseFilter)) {
+                logRecord.setHidden(false);
+                return true;
+            } else if (logRecord.idProperty() != null && logRecord.getId().toString().contains(lowerCaseFilter)) {
+                logRecord.setHidden(false);
+                return true;
+            } else if (logRecord.jobIdProperty() != null && logRecord.getJobId().toString().contains(lowerCaseFilter)) {
+                logRecord.setHidden(false);
+                return true;
+            } else if (logRecord.xActionIdProperty() != null && logRecord.getxActionId().toString().contains(lowerCaseFilter)) {
+                logRecord.setHidden(false);
+                return true;
+            } else if (logRecord.lineProperty() != null && logRecord.getLine().toString().contains(lowerCaseFilter)) {
+                logRecord.setHidden(false);
+                return true;
+            } else if (logRecord.getTimeFormatted().contains(lowerCaseFilter)) {
+                logRecord.setHidden(false);
                 return true;
             }
+
+            logRecord.setHidden(true);
             return false; // Does not match.
         });
     }
 
-    public void filterForJobId(String searchStr) {
+    private void filterForThreadId(String searchStr, boolean firstCheck){
         filteredData.setPredicate(logRecord -> {
-            if (searchStr == null || searchStr.isEmpty()) {
-                return true;
-            }
-
             String lowerCaseFilter = searchStr.toLowerCase();
 
-            if (logRecord.jobIdProperty() != null && logRecord.getJobId().toString().contains(lowerCaseFilter)) {
+            if(firstCheck) {
+                logRecord.setHidden(false);
+            } else {
+                if(logRecord.isHidden()) {
+                    return  false;
+                }
+            }
+            if (logRecord.threadProperty() != null && logRecord.getThread().toLowerCase().contains(lowerCaseFilter)) {
+                logRecord.setHidden(false);
                 return true;
             }
+            logRecord.setHidden(true);
+            return false; // Does not match.
+        });
+    }
+
+    private void filterForJobId(String searchStr, boolean firstCheck) {
+        filteredData.setPredicate(logRecord -> {
+
+            String lowerCaseFilter = searchStr.toLowerCase();
+            if(firstCheck) {
+                logRecord.setHidden(false);
+            } else {
+                if(logRecord.isHidden()) {
+                    return  false;
+                }
+            }
+            if (logRecord.jobIdProperty() != null && logRecord.getJobId().toString().contains(lowerCaseFilter)) {
+                logRecord.setHidden(false);
+                return true;
+            }
+            logRecord.setHidden(true);
             return false; // Does not match.
         });
 
+    }
+    private void filterForAfterTime(String searchStr, boolean firstCheck) {
+        filteredData.setPredicate(logRecord -> {
+
+            LocalDateTime searchTime = LocalDateTime.parse(searchStr);
+            if(firstCheck) {
+                logRecord.setHidden(false);
+            } else {
+                if(logRecord.isHidden()) {
+                    return  false;
+                }
+            }
+            if (logRecord.jobIdProperty() != null && logRecord.getTime().isAfter(searchTime)) {
+                logRecord.setHidden(false);
+                return true;
+            }
+            logRecord.setHidden(true);
+            return false; // Does not match.
+        });
+    }
+    private void filterForBeforeTime(String searchStr, boolean firstCheck) {
+        filteredData.setPredicate(logRecord -> {
+
+            LocalDateTime searchTime = LocalDateTime.parse(searchStr);
+            if(firstCheck) {
+                logRecord.setHidden(false);
+            } else {
+                if(logRecord.isHidden()) {
+                    return  false;
+                }
+            }
+            if (logRecord.jobIdProperty() != null && logRecord.getTime().isBefore(searchTime)) {
+                logRecord.setHidden(false);
+                return true;
+            }
+            logRecord.setHidden(true);
+            return false; // Does not match.
+        });
+    }
+
+    public void filter(){
+        boolean firstCheck = true;
+        for (String filterName : filters.keySet()) {
+            Filter filter = filters.get(filterName);
+            if(filterName.equals("timeAfter") || filterName.equals("timeBefore")) continue;
+            if(!filter.isEnabled() || filter.getSearchStr() == null || filter.getSearchStr().isEmpty()) continue;
+            if(filterName.equals("threadId"))
+                filterForThreadId(filter.getSearchStr(), firstCheck);
+            if(filterName.equals("jobId"))
+                filterForJobId(filter.getSearchStr(), firstCheck);
+
+
+
+
+            /* Dont put anuthing below this line */
+            if(filterName.equals("globalSearch"))
+                filterForGlobalSearch(filter.getSearchStr(), firstCheck);
+            firstCheck = false;
+        }
+        if(filters.get("timeAfter").isEnabled()){
+            filterForAfterTime(filters.get("timeAfter").getSearchStr(), firstCheck);
+            firstCheck = false;
+        }
+        if(filters.get("timeBefore").isEnabled()){
+            filterForBeforeTime(filters.get("timeBefore").getSearchStr(), firstCheck);
+            firstCheck = false;
+        }
+
+    }
+
+    public Map<String, Filter> getFilters() {
+        return filters;
     }
 }
