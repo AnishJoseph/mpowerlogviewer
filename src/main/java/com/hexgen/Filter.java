@@ -5,13 +5,13 @@ package com.hexgen;
  */
 public class Filter {
     private boolean enabled;
-    private String searchStr;
+    private Object searchSpec;
 
     public Filter(){}
 
-    public Filter(boolean enabled, String searchStr) {
+    public Filter(boolean enabled, Object searchSpec) {
         this.enabled = enabled;
-        this.searchStr = searchStr;
+        this.searchSpec = searchSpec;
     }
 
     public boolean isEnabled() {
@@ -22,11 +22,11 @@ public class Filter {
         this.enabled = enabled;
     }
 
-    public String getSearchStr() {
-        return searchStr;
+    public Object getSearchSpec() {
+        return searchSpec;
     }
 
-    public void setSearchStr(String searchStr) {
-        this.searchStr = searchStr;
+    public void setSearchSpec(Object searchSpec) {
+        this.searchSpec = searchSpec;
     }
 }

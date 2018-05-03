@@ -114,7 +114,7 @@ public class LogTableController extends Thread{
 
         // 2. Set the filter Predicate whenever the filter changes.
         filterField.textProperty().addListener((observable, oldValue, newValue) -> {
-            this.filters.get("globalSearch").setSearchStr(newValue);
+            this.filters.get("globalSearch").setSearchSpec(newValue);
             filter();
         });
 
@@ -218,10 +218,9 @@ public class LogTableController extends Thread{
         });
 
     }
-    private void filterForLevel(String searchStr, boolean firstCheck) {
+    private void filterForLevel(ObservableList<String > chosenLevels, boolean firstCheck) {
         filteredData.setPredicate(logRecord -> {
 
-            List<String> levels = Arrays.asList(searchStr.split(","));
             if(firstCheck) {
                 logRecord.setHidden(false);
             } else {
@@ -229,7 +228,7 @@ public class LogTableController extends Thread{
                     return  false;
                 }
             }
-            if (logRecord.levelProperty() != null && levels.contains(logRecord.getLevel())) {
+            if (logRecord.levelProperty() != null && chosenLevels.contains(logRecord.getLevel())) {
                 logRecord.setHidden(false);
                 return true;
             }
@@ -278,10 +277,9 @@ public class LogTableController extends Thread{
         });
 
     }
-    private void filterForAfterTime(String searchStr, boolean firstCheck) {
+    private void filterForAfterTime(LocalDateTime searchTime, boolean firstCheck) {
         filteredData.setPredicate(logRecord -> {
 
-            LocalDateTime searchTime = LocalDateTime.parse(searchStr);
             if(firstCheck) {
                 logRecord.setHidden(false);
             } else {
@@ -297,10 +295,9 @@ public class LogTableController extends Thread{
             return false; // Does not match.
         });
     }
-    private void filterForBeforeTime(String searchStr, boolean firstCheck) {
+    private void filterForBeforeTime(LocalDateTime searchTime, boolean firstCheck) {
         filteredData.setPredicate(logRecord -> {
 
-            LocalDateTime searchTime = LocalDateTime.parse(searchStr);
             if(firstCheck) {
                 logRecord.setHidden(false);
             } else {
@@ -322,32 +319,32 @@ public class LogTableController extends Thread{
         for (String filterName : filters.keySet()) {
             Filter filter = filters.get(filterName);
             if(filterName.equals("timeAfter") || filterName.equals("timeBefore")) continue;
-            if(!filter.isEnabled() || filter.getSearchStr() == null || filter.getSearchStr().isEmpty()) continue;
+            if(!filter.isEnabled() || filter.getSearchSpec() == null || (filter.getSearchSpec() instanceof  String && ((String)filter.getSearchSpec()).isEmpty())) continue;
             if(filterName.equals("threadId"))
-                filterForThreadId(filter.getSearchStr(), firstCheck);
+                filterForThreadId((String) filter.getSearchSpec(), firstCheck);
             if(filterName.equals("jobId"))
-                filterForJobId(filter.getSearchStr(), firstCheck);
+                filterForJobId((String) filter.getSearchSpec(), firstCheck);
             if(filterName.equals("level"))
-                filterForLevel(filter.getSearchStr(), firstCheck);
+                filterForLevel((ObservableList<String>) filter.getSearchSpec(), firstCheck);
             if(filterName.equals("company"))
-                filterForCompany(filter.getSearchStr(), firstCheck);
+                filterForCompany((String) filter.getSearchSpec(), firstCheck);
             if(filterName.equals("event"))
-                filterForEvent(filter.getSearchStr(), firstCheck);
+                filterForEvent((String) filter.getSearchSpec(), firstCheck);
 
 
 
 
             /* Dont put anuthing below this line */
             if(filterName.equals("globalSearch"))
-                filterForGlobalSearch(filter.getSearchStr(), firstCheck);
+                filterForGlobalSearch((String) filter.getSearchSpec(), firstCheck);
             firstCheck = false;
         }
         if(filters.get("timeAfter").isEnabled()){
-            filterForAfterTime(filters.get("timeAfter").getSearchStr(), firstCheck);
+            filterForAfterTime((LocalDateTime) filters.get("timeAfter").getSearchSpec(), firstCheck);
             firstCheck = false;
         }
         if(filters.get("timeBefore").isEnabled()){
-            filterForBeforeTime(filters.get("timeBefore").getSearchStr(), firstCheck);
+            filterForBeforeTime((LocalDateTime) filters.get("timeBefore").getSearchSpec(), firstCheck);
             firstCheck = false;
         }
 

@@ -79,35 +79,35 @@ public class FilterController extends Thread{
         PauseTransition pause = new PauseTransition(Duration.seconds(1));
         tidText.textProperty().addListener((observable, oldValue, newValue) -> {
             pause.setOnFinished(event -> {
-                filters.get("threadId").setSearchStr(tidText.getText());
+                filters.get("threadId").setSearchSpec(tidText.getText());
                 logTableController.filter();
             });
             pause.playFromStart();
         });
         jobIdText.textProperty().addListener((observable, oldValue, newValue) -> {
             pause.setOnFinished(event -> {
-                filters.get("jobId").setSearchStr(jobIdText.getText());
+                filters.get("jobId").setSearchSpec(jobIdText.getText());
                 logTableController.filter();
             });
             pause.playFromStart();
         });
         levelText.getCheckModel().getCheckedItems().addListener((ListChangeListener<String>) c -> {
             pause.setOnFinished(event -> {
-                filters.get("level").setSearchStr(String.join(",", levelText.getCheckModel().getCheckedItems()));
+                filters.get("level").setSearchSpec(levelText.getCheckModel().getCheckedItems());
                 logTableController.filter();
             });
             pause.playFromStart();
         });
         companyText.textProperty().addListener((observable, oldValue, newValue) -> {
             pause.setOnFinished(event -> {
-                filters.get("company").setSearchStr(companyText.getText());
+                filters.get("company").setSearchSpec(companyText.getText());
                 logTableController.filter();
             });
             pause.playFromStart();
         });
         eventText.textProperty().addListener((observable, oldValue, newValue) -> {
             pause.setOnFinished(event -> {
-                filters.get("event").setSearchStr(eventText.getText());
+                filters.get("event").setSearchSpec(eventText.getText());
                 logTableController.filter();
             });
             pause.playFromStart();
@@ -120,8 +120,7 @@ public class FilterController extends Thread{
                     filters.get("timeAfter").setEnabled(false);
                     return;
                 }
-                LocalDateTime dt = timeAfterText.getDateTimeValue();
-                filters.get("timeAfter").setSearchStr(dt.toString());
+                filters.get("timeAfter").setSearchSpec(timeAfterText.getDateTimeValue());
                 filters.get("timeAfter").setEnabled(true);
                 logTableController.filter();
             });
@@ -133,8 +132,7 @@ public class FilterController extends Thread{
                     filters.get("timeBefore").setEnabled(false);
                     return;
                 }
-                LocalDateTime dt = timeBeforeText.getDateTimeValue();
-                filters.get("timeBefore").setSearchStr(dt.toString());
+                filters.get("timeBefore").setSearchSpec(timeBeforeText.getDateTimeValue());
                 filters.get("timeBefore").setEnabled(true);
                 logTableController.filter();
             });
@@ -147,13 +145,13 @@ public class FilterController extends Thread{
         if(tidChkbox.isSelected()){
             tidText.setVisible(true);
             String tidTex = tidText.getText();
-            if(!tidTex.isEmpty()) filters.get("threadId").setSearchStr(tidTex);
+            if(!tidTex.isEmpty()) filters.get("threadId").setSearchSpec(tidTex);
             if(tidTex != null && !tidTex.isEmpty()) {
                 logTableController.filter();
             }
         } else {
             tidText.setVisible(false);
-            filters.get("threadId").setSearchStr(null);
+            filters.get("threadId").setSearchSpec(null);
             logTableController.filter();
         }
     }
@@ -162,13 +160,13 @@ public class FilterController extends Thread{
         if(jobIdChkbox.isSelected()){
             filters.get("jobId").setEnabled(true);
             String jobIdTex = jobIdText.getText();
-            if(!jobIdTex.isEmpty()) filters.get("jobId").setSearchStr(jobIdTex);
+            if(!jobIdTex.isEmpty()) filters.get("jobId").setSearchSpec(jobIdTex);
             if(jobIdTex != null && !jobIdTex.isEmpty()) {
                 logTableController.filter();
             }
         } else {
             jobIdText.setVisible(false);
-            filters.get("jobId").setSearchStr(null);
+            filters.get("jobId").setSearchSpec(null);
             logTableController.filter();
         }
     }
@@ -176,14 +174,14 @@ public class FilterController extends Thread{
         levelText.setVisible(levelChkbox.isSelected());
         if(levelChkbox.isSelected()){
             filters.get("level").setEnabled(true);
-            String levelTex = String.join(",", levelText.getCheckModel().getCheckedItems());
-            if(!levelTex.isEmpty()) filters.get("level").setSearchStr(levelTex);
-            if(levelTex != null && !levelTex.isEmpty()) {
+            ObservableList<String> checkedItems = levelText.getCheckModel().getCheckedItems();
+            if(!checkedItems.isEmpty()) filters.get("level").setSearchSpec(checkedItems);
+            if(!checkedItems.isEmpty()) {
                 logTableController.filter();
             }
         } else {
             levelText.setVisible(false);
-            filters.get("level").setSearchStr(null);
+            filters.get("level").setSearchSpec(null);
             logTableController.filter();
         }
     }
@@ -192,13 +190,13 @@ public class FilterController extends Thread{
         if(companyChkbox.isSelected()){
             filters.get("company").setEnabled(true);
             String companyTex = companyText.getText();
-            if(!companyTex.isEmpty()) filters.get("company").setSearchStr(companyTex);
+            if(!companyTex.isEmpty()) filters.get("company").setSearchSpec(companyTex);
             if(companyTex != null && !companyTex.isEmpty()) {
                 logTableController.filter();
             }
         } else {
             companyText.setVisible(false);
-            filters.get("company").setSearchStr(null);
+            filters.get("company").setSearchSpec(null);
             logTableController.filter();
         }
     }
@@ -207,13 +205,13 @@ public class FilterController extends Thread{
         if(eventChkbox.isSelected()){
             filters.get("event").setEnabled(true);
             String eventTex = eventText.getText();
-            if(!eventTex.isEmpty()) filters.get("event").setSearchStr(eventTex);
+            if(!eventTex.isEmpty()) filters.get("event").setSearchSpec(eventTex);
             if(eventTex != null && !eventTex.isEmpty()) {
                 logTableController.filter();
             }
         } else {
             eventText.setVisible(false);
-            filters.get("event").setSearchStr(null);
+            filters.get("event").setSearchSpec(null);
             logTableController.filter();
         }
     }
