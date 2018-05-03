@@ -11,6 +11,10 @@
     <TextField fx:id="tidText" visible="false"/>
     <CheckBox fx:id="jobIdChkbox" text="Job ID Filter" onAction="#jobIdChkBoxClicked"/>
     <TextField fx:id="jobIdText" visible="false"/>
+    <CheckBox fx:id="levelChkbox" text="Level Filter" onAction="#levelChkBoxClicked"/>
+    <TextField fx:id="levelText" visible="false"/>
+    <CheckBox fx:id="companyChkbox" text="Company Filter" onAction="#companyChkBoxClicked"/>
+    <TextField fx:id="companyText" visible="false"/>
     <CheckBox fx:id="timeChkbox" text="Time Filter" onAction="#timeChkBoxClicked"/>
     <CheckBox fx:id="timeAfterChkbox" text="Show After" visible="false" selected="true"/>
     <DatePicker fx:id="timeAfterText" visible="false"/>

@@ -31,6 +31,14 @@ public class FilterController extends Thread{
     @FXML
     private CheckBox jobIdChkbox;
     @FXML
+    private TextField levelText;
+    @FXML
+    private CheckBox levelChkbox;
+    @FXML
+    private TextField companyText;
+    @FXML
+    private CheckBox companyChkbox;
+    @FXML
     private CheckBox timeChkbox;
     @FXML
     private CheckBox timeBeforeChkbox;
@@ -67,6 +75,20 @@ public class FilterController extends Thread{
             });
             pause.playFromStart();
         });
+        levelText.textProperty().addListener((observable, oldValue, newValue) -> {
+            pause.setOnFinished(event -> {
+                filters.get("level").setSearchStr(levelText.getText());
+                logTableController.filter();
+            });
+            pause.playFromStart();
+        });
+        companyText.textProperty().addListener((observable, oldValue, newValue) -> {
+            pause.setOnFinished(event -> {
+                filters.get("company").setSearchStr(companyText.getText());
+                logTableController.filter();
+            });
+            pause.playFromStart();
+        });
         timeAfterText.valueProperty().addListener((observable, oldValue, newValue) -> {
             pause.setOnFinished(event -> {
                 if(newValue == null){
@@ -82,7 +104,7 @@ public class FilterController extends Thread{
         });
         timeBeforeText.valueProperty().addListener((observable, oldValue, newValue) -> {
             pause.setOnFinished(event -> {
-                if(newValue == null){
+                if (newValue == null) {
                     filters.get("timeBefore").setEnabled(false);
                     return;
                 }
@@ -100,11 +122,13 @@ public class FilterController extends Thread{
         if(tidChkbox.isSelected()){
             tidText.setVisible(true);
             String tidTex = tidText.getText();
+            if(!tidTex.isEmpty()) filters.get("threadId").setSearchStr(tidTex);
             if(tidTex != null && !tidTex.isEmpty()) {
                 logTableController.filter();
             }
         } else {
             tidText.setVisible(false);
+            filters.get("threadId").setSearchStr(null);
             logTableController.filter();
         }
     }
@@ -113,11 +137,43 @@ public class FilterController extends Thread{
         if(jobIdChkbox.isSelected()){
             filters.get("jobId").setEnabled(true);
             String jobIdTex = jobIdText.getText();
+            if(!jobIdTex.isEmpty()) filters.get("jobId").setSearchStr(jobIdTex);
             if(jobIdTex != null && !jobIdTex.isEmpty()) {
                 logTableController.filter();
             }
         } else {
             jobIdText.setVisible(false);
+            filters.get("jobId").setSearchStr(null);
+            logTableController.filter();
+        }
+    }
+    public void levelChkBoxClicked(Event e){
+        levelText.setVisible(levelChkbox.isSelected());
+        if(levelChkbox.isSelected()){
+            filters.get("level").setEnabled(true);
+            String levelTex = levelText.getText();
+            if(!levelTex.isEmpty()) filters.get("level").setSearchStr(levelTex);
+            if(levelTex != null && !levelTex.isEmpty()) {
+                logTableController.filter();
+            }
+        } else {
+            levelText.setVisible(false);
+            filters.get("level").setSearchStr(null);
+            logTableController.filter();
+        }
+    }
+    public void companyChkBoxClicked(Event e){
+        companyText.setVisible(companyChkbox.isSelected());
+        if(companyChkbox.isSelected()){
+            filters.get("company").setEnabled(true);
+            String companyTex = companyText.getText();
+            if(!companyTex.isEmpty()) filters.get("company").setSearchStr(companyTex);
+            if(companyTex != null && !companyTex.isEmpty()) {
+                logTableController.filter();
+            }
+        } else {
+            companyText.setVisible(false);
+            filters.get("company").setSearchStr(null);
             logTableController.filter();
         }
     }

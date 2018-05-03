@@ -71,6 +71,7 @@ public class LogTableController extends Thread{
         filters.put("jobId", new Filter(false, ""));
         filters.put("xActionId", new Filter(false, ""));
         filters.put("level", new Filter(false, ""));
+        filters.put("company", new Filter(false, ""));
         filters.put("user", new Filter(false, ""));
         filters.put("threadId", new Filter(false, ""));
         filters.put("regex", new Filter(false, ""));
@@ -207,6 +208,46 @@ public class LogTableController extends Thread{
         });
 
     }
+    private void filterForLevel(String searchStr, boolean firstCheck) {
+        filteredData.setPredicate(logRecord -> {
+
+            String upperCaseFilter = searchStr.toUpperCase();
+            if(firstCheck) {
+                logRecord.setHidden(false);
+            } else {
+                if(logRecord.isHidden()) {
+                    return  false;
+                }
+            }
+            if (logRecord.levelProperty() != null && logRecord.getLevel().contains(upperCaseFilter)) {
+                logRecord.setHidden(false);
+                return true;
+            }
+            logRecord.setHidden(true);
+            return false; // Does not match.
+        });
+
+    }
+    private void filterForCompany(String searchStr, boolean firstCheck) {
+        filteredData.setPredicate(logRecord -> {
+
+            String upperCaseFilter = searchStr.toUpperCase();
+            if(firstCheck) {
+                logRecord.setHidden(false);
+            } else {
+                if(logRecord.isHidden()) {
+                    return  false;
+                }
+            }
+            if (logRecord.companyProperty() != null && logRecord.getCompany().contains(upperCaseFilter)) {
+                logRecord.setHidden(false);
+                return true;
+            }
+            logRecord.setHidden(true);
+            return false; // Does not match.
+        });
+
+    }
     private void filterForAfterTime(String searchStr, boolean firstCheck) {
         filteredData.setPredicate(logRecord -> {
 
@@ -256,6 +297,10 @@ public class LogTableController extends Thread{
                 filterForThreadId(filter.getSearchStr(), firstCheck);
             if(filterName.equals("jobId"))
                 filterForJobId(filter.getSearchStr(), firstCheck);
+            if(filterName.equals("level"))
+                filterForLevel(filter.getSearchStr(), firstCheck);
+            if(filterName.equals("company"))
+                filterForCompany(filter.getSearchStr(), firstCheck);
 
 
 
@@ -272,6 +317,10 @@ public class LogTableController extends Thread{
         if(filters.get("timeBefore").isEnabled()){
             filterForBeforeTime(filters.get("timeBefore").getSearchStr(), firstCheck);
             firstCheck = false;
+        }
+
+        if (firstCheck) {
+            filterForGlobalSearch("", true);
         }
 
     }
