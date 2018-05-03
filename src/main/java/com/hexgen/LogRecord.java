@@ -24,11 +24,12 @@ public class LogRecord {
     private final StringProperty className;
     private final SimpleObjectProperty<Integer> line;
     private final StringProperty msg;
+    private final StringProperty event;
     private String timeFormatted = "";
     private boolean hidden = false;
 
 
-    public LogRecord(Long id, String user, String company, Long jobId, Long xActionId, LocalDateTime time, String thread, String level, String className, Long line, String msg) {
+    public LogRecord(Long id, String user, String company, Long jobId, Long xActionId, String event, LocalDateTime time, String thread, String level, String className, Long line, String msg) {
         this.id = id == null ? null : new SimpleObjectProperty(id.intValue());
         this.jobId = jobId == null ? null : new SimpleObjectProperty(jobId.intValue());
         this.xActionId = xActionId == null ? null : new SimpleObjectProperty(xActionId.intValue());
@@ -40,6 +41,7 @@ public class LogRecord {
         this.level = new SimpleStringProperty(level);
         this.className = new SimpleStringProperty(className);
         this.msg = new SimpleStringProperty(msg);
+        this.event = new SimpleStringProperty(event);
 
         this.time = new SimpleObjectProperty<>(time);
         if(time != null)
@@ -193,5 +195,17 @@ public class LogRecord {
 
     public void setHidden(boolean hidden) {
         this.hidden = hidden;
+    }
+
+    public String getEvent() {
+        return event.get();
+    }
+
+    public StringProperty eventProperty() {
+        return event;
+    }
+
+    public void setEvent(String event) {
+        this.event.set(event);
     }
 }

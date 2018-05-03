@@ -4,14 +4,18 @@ package com.hexgen;
  * Created by anishjoseph on 25/04/18.
  */
 import javafx.animation.PauseTransition;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.util.Duration;
+import org.controlsfx.control.CheckComboBox;
+import tornadofx.control.DateTimePicker;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -31,13 +35,18 @@ public class FilterController extends Thread{
     @FXML
     private CheckBox jobIdChkbox;
     @FXML
-    private TextField levelText;
+    private CheckComboBox<String> levelText;
+
     @FXML
     private CheckBox levelChkbox;
     @FXML
     private TextField companyText;
     @FXML
     private CheckBox companyChkbox;
+    @FXML
+    private TextField eventText;
+    @FXML
+    private CheckBox eventChkbox;
     @FXML
     private CheckBox timeChkbox;
     @FXML
@@ -46,9 +55,9 @@ public class FilterController extends Thread{
     private CheckBox timeAfterChkbox;
 
     @FXML
-    private DatePicker timeAfterText;
+    private DateTimePicker timeAfterText;
     @FXML
-    private DatePicker timeBeforeText;
+    private DateTimePicker timeBeforeText;
 
     private LogTableController logTableController;
 
@@ -59,6 +68,13 @@ public class FilterController extends Thread{
     @FXML
     private void initialize()
     {
+        final ObservableList<String> strings = FXCollections.observableArrayList();
+        strings.add("ERROR");
+        strings.add("WARN");
+        strings.add("INFO");
+        strings.add("DEBUG");
+        strings.add("TRACE");
+        levelText.getItems().addAll(strings);
 
         PauseTransition pause = new PauseTransition(Duration.seconds(1));
         tidText.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -75,9 +91,9 @@ public class FilterController extends Thread{
             });
             pause.playFromStart();
         });
-        levelText.textProperty().addListener((observable, oldValue, newValue) -> {
+        levelText.getCheckModel().getCheckedItems().addListener((ListChangeListener<String>) c -> {
             pause.setOnFinished(event -> {
-                filters.get("level").setSearchStr(levelText.getText());
+                filters.get("level").setSearchStr(String.join(",", levelText.getCheckModel().getCheckedItems()));
                 logTableController.filter();
             });
             pause.playFromStart();
@@ -89,26 +105,35 @@ public class FilterController extends Thread{
             });
             pause.playFromStart();
         });
-        timeAfterText.valueProperty().addListener((observable, oldValue, newValue) -> {
+        eventText.textProperty().addListener((observable, oldValue, newValue) -> {
+            pause.setOnFinished(event -> {
+                filters.get("event").setSearchStr(eventText.getText());
+                logTableController.filter();
+            });
+            pause.playFromStart();
+        });
+
+
+        timeAfterText.dateTimeValueProperty().addListener((observable, oldValue, newValue) -> {
             pause.setOnFinished(event -> {
                 if(newValue == null){
                     filters.get("timeAfter").setEnabled(false);
                     return;
                 }
-                LocalDateTime dt = newValue.atStartOfDay();
+                LocalDateTime dt = timeAfterText.getDateTimeValue();
                 filters.get("timeAfter").setSearchStr(dt.toString());
                 filters.get("timeAfter").setEnabled(true);
                 logTableController.filter();
             });
             pause.playFromStart();
         });
-        timeBeforeText.valueProperty().addListener((observable, oldValue, newValue) -> {
+        timeBeforeText.dateTimeValueProperty().addListener((observable, oldValue, newValue) -> {
             pause.setOnFinished(event -> {
                 if (newValue == null) {
                     filters.get("timeBefore").setEnabled(false);
                     return;
                 }
-                LocalDateTime dt = newValue.plusDays(1).atStartOfDay().minusSeconds(1);
+                LocalDateTime dt = timeBeforeText.getDateTimeValue();
                 filters.get("timeBefore").setSearchStr(dt.toString());
                 filters.get("timeBefore").setEnabled(true);
                 logTableController.filter();
@@ -151,7 +176,7 @@ public class FilterController extends Thread{
         levelText.setVisible(levelChkbox.isSelected());
         if(levelChkbox.isSelected()){
             filters.get("level").setEnabled(true);
-            String levelTex = levelText.getText();
+            String levelTex = String.join(",", levelText.getCheckModel().getCheckedItems());
             if(!levelTex.isEmpty()) filters.get("level").setSearchStr(levelTex);
             if(levelTex != null && !levelTex.isEmpty()) {
                 logTableController.filter();
@@ -174,6 +199,21 @@ public class FilterController extends Thread{
         } else {
             companyText.setVisible(false);
             filters.get("company").setSearchStr(null);
+            logTableController.filter();
+        }
+    }
+    public void eventChkBoxClicked(Event e){
+        eventText.setVisible(eventChkbox.isSelected());
+        if(eventChkbox.isSelected()){
+            filters.get("event").setEnabled(true);
+            String eventTex = eventText.getText();
+            if(!eventTex.isEmpty()) filters.get("event").setSearchStr(eventTex);
+            if(eventTex != null && !eventTex.isEmpty()) {
+                logTableController.filter();
+            }
+        } else {
+            eventText.setVisible(false);
+            filters.get("event").setSearchStr(null);
             logTableController.filter();
         }
     }

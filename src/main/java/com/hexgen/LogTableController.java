@@ -15,7 +15,9 @@ import javafx.scene.control.TextField;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -52,6 +54,9 @@ public class LogTableController extends Thread{
     private TableColumn<LogRecord, String> className;
     @FXML
     private TableColumn<LogRecord, LocalDateTime> time;
+    @FXML
+    private TableColumn<LogRecord, String> event;
+
 
     private static boolean isRunning = true;
     private ObservableList<LogRecord> masterData = null;
@@ -76,6 +81,7 @@ public class LogTableController extends Thread{
         filters.put("threadId", new Filter(false, ""));
         filters.put("regex", new Filter(false, ""));
         filters.put("msg", new Filter(false, ""));
+        filters.put("event", new Filter(false, ""));
         filters.put("globalSearch", new Filter(true, ""));
 
         masterData = LogFileReader.getMasterData();
@@ -90,6 +96,7 @@ public class LogTableController extends Thread{
         xActionId.setCellValueFactory(cellData -> cellData.getValue().xActionIdProperty());
         jobId.setCellValueFactory(cellData -> cellData.getValue().jobIdProperty());
         line.setCellValueFactory(cellData -> cellData.getValue().lineProperty());
+        event.setCellValueFactory(cellData -> cellData.getValue().eventProperty());
         time.setCellValueFactory(cellData -> cellData.getValue().timeProperty());
         time.setCellFactory(col -> new TableCell<LogRecord, LocalDateTime>() {
             @Override
@@ -135,6 +142,9 @@ public class LogTableController extends Thread{
                 logRecord.setHidden(false);
                 return true;
             } else if (logRecord.companyProperty() != null && logRecord.getCompany().toLowerCase().contains(lowerCaseFilter)) {
+                logRecord.setHidden(false);
+                return true;
+            }else if (logRecord.eventProperty() != null && logRecord.getEvent().toLowerCase().contains(lowerCaseFilter)) {
                 logRecord.setHidden(false);
                 return true;
             } else if (logRecord.levelProperty() != null && logRecord.getLevel().toLowerCase().contains(lowerCaseFilter)) {
@@ -211,7 +221,7 @@ public class LogTableController extends Thread{
     private void filterForLevel(String searchStr, boolean firstCheck) {
         filteredData.setPredicate(logRecord -> {
 
-            String upperCaseFilter = searchStr.toUpperCase();
+            List<String> levels = Arrays.asList(searchStr.split(","));
             if(firstCheck) {
                 logRecord.setHidden(false);
             } else {
@@ -219,7 +229,7 @@ public class LogTableController extends Thread{
                     return  false;
                 }
             }
-            if (logRecord.levelProperty() != null && logRecord.getLevel().contains(upperCaseFilter)) {
+            if (logRecord.levelProperty() != null && levels.contains(logRecord.getLevel())) {
                 logRecord.setHidden(false);
                 return true;
             }
@@ -240,6 +250,26 @@ public class LogTableController extends Thread{
                 }
             }
             if (logRecord.companyProperty() != null && logRecord.getCompany().contains(upperCaseFilter)) {
+                logRecord.setHidden(false);
+                return true;
+            }
+            logRecord.setHidden(true);
+            return false; // Does not match.
+        });
+
+    }
+    private void filterForEvent(String searchStr, boolean firstCheck) {
+        filteredData.setPredicate(logRecord -> {
+
+            String upperCaseFilter = searchStr.toUpperCase();
+            if(firstCheck) {
+                logRecord.setHidden(false);
+            } else {
+                if(logRecord.isHidden()) {
+                    return  false;
+                }
+            }
+            if (logRecord.eventProperty() != null && logRecord.getEvent().contains(upperCaseFilter)) {
                 logRecord.setHidden(false);
                 return true;
             }
@@ -301,6 +331,8 @@ public class LogTableController extends Thread{
                 filterForLevel(filter.getSearchStr(), firstCheck);
             if(filterName.equals("company"))
                 filterForCompany(filter.getSearchStr(), firstCheck);
+            if(filterName.equals("event"))
+                filterForEvent(filter.getSearchStr(), firstCheck);
 
 
 

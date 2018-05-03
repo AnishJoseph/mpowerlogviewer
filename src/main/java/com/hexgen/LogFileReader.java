@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public class LogFileReader extends Thread {
     private static ObservableList<LogRecord> masterData = FXCollections.observableArrayList();
     private static boolean running = true;
-    private static final Pattern pattern = Pattern.compile("(.*?)-(.*?)-(\\d*?)-(\\d*?):~:(.*?):~:(.*?):~:(.*?):~:(.*?):~:(.*?):~:(.*)");
+    private static final Pattern pattern = Pattern.compile("(.*?):(.*?):(\\d*?):(\\d*?):(.*?):~:(.*?):~:(.*?):~:(.*?):~:(.*?):~:(.*?):~:(.*)");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yy HH:mm:ss.SSS");
 
     public static void setRunning(boolean running) {
@@ -47,9 +47,9 @@ public class LogFileReader extends Thread {
                 if(matcher.matches()) {
                     Long jobId = convertToLong(matcher.group(3));
                     Long xActionId = convertToLong(matcher.group(4));
-                    Long lineNumber = convertToLong(matcher.group(9));
-                    LocalDateTime localDateTime = LocalDateTime.parse(matcher.group(5), formatter);
-                    masterData.add(new LogRecord(recordNumber, matcher.group(1),matcher.group(2),jobId,xActionId,localDateTime,matcher.group(6),matcher.group(7),matcher.group(8),lineNumber,matcher.group(10)));
+                    Long lineNumber = convertToLong(matcher.group(10));
+                    LocalDateTime localDateTime = LocalDateTime.parse(matcher.group(6), formatter);
+                    masterData.add(new LogRecord(recordNumber, matcher.group(1),matcher.group(2),jobId,xActionId,matcher.group(5),localDateTime,matcher.group(7),matcher.group(8),matcher.group(9),lineNumber,matcher.group(11)));
                 }
             }
         } catch (Exception e) {

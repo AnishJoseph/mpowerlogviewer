@@ -18,6 +18,10 @@
     <properties>
         <slf4j.version>1.7.12</slf4j.version>
         <log4j.version>1.2.17</log4j.version>
+        <common.lang.version>2.6</common.lang.version>
+        <miglayout.javafx.version>5.0</miglayout.javafx.version>
+        <tornado.version>1.0.3</tornado.version>
+        <controlfx.version>8.40.14</controlfx.version>
     </properties>
 
     <build>
@@ -60,7 +64,7 @@
         <dependency>
             <groupId>com.miglayout</groupId>
             <artifactId>miglayout-javafx</artifactId>
-            <version>5.0</version>
+            <version>${miglayout.javafx.version}</version>
         </dependency>
 
         <!-- Apache Commons -->
@@ -68,7 +72,12 @@
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
+            <version>${common.lang.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>no.tornado</groupId>
+            <artifactId>tornadofx-controls</artifactId>
+            <version>${tornado.version}</version>
         </dependency>
 
         <!-- Logging  -->
@@ -92,6 +101,12 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>${log4j.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.controlsfx/controlsfx -->
+        <dependency>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+            <version>${controlfx.version}</version>
         </dependency>
 
     </dependencies>
