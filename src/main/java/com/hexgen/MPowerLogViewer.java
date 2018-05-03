@@ -4,18 +4,17 @@ package com.hexgen;
  * Created by anishjoseph on 25/04/18.
  */
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.prefs.Preferences;
 
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 /**
@@ -28,6 +27,8 @@ public class MPowerLogViewer extends Application {
 
     private LogTableController logTableController;
     private LogFileReader logFileReader = null;
+    private static Preferences prefs = Preferences.userRoot().node("mPowerLogfileViewer");
+
 
     @Override
     public void start(Stage primaryStage) {
@@ -41,7 +42,7 @@ public class MPowerLogViewer extends Application {
 
             BorderPane border = new BorderPane();
 
-            border.setTop(createMenus());
+            border.setTop(createMenus(primaryStage));
             border.setLeft(createFilterPane());
             border.setCenter(logRecordsView);
 
@@ -77,7 +78,10 @@ public class MPowerLogViewer extends Application {
         logFilename = args[0];
         launch(args);
     }
-    private MenuBar createMenus(){
+    private MenuBar createMenus(Stage stage){
+        Preferences prefs = Preferences.userRoot().node(this.getClass().getName());
+
+
         Menu fileMenu = new Menu("File");
         MenuItem openItem = new MenuItem("Open");
         fileMenu.getItems().add(openItem);
@@ -94,8 +98,24 @@ public class MPowerLogViewer extends Application {
 
 
         openItem.setOnAction(e -> {
-            System.out.println("File->Open Selected");
-            logFileReader.readFile("/tmp/mpower/logs/im_debug.log");
+            String prevDirectory = prefs.get("prevDirectory", null);
+
+            FileChooser fileChooser = new FileChooser();
+            if(prevDirectory != null){
+                File file = new File(prevDirectory);
+                if(file.isDirectory()) {
+                    fileChooser.setInitialDirectory(file);
+                }
+            }
+            fileChooser.setTitle("Choose the mPower debug file");
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("mPower Logs", "im_*.log")
+            );
+            File selectedFile = fileChooser.showOpenDialog(stage);
+            if(selectedFile != null){
+                logFileReader.readFile(selectedFile.getAbsolutePath());
+                prefs.put("prevDirectory", selectedFile.getParent());
+            }
         });
         aboutItem.setOnAction(e -> {
             System.out.println("Help->About Selected");
