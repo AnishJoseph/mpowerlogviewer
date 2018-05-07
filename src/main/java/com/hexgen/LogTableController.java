@@ -8,10 +8,9 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import org.controlsfx.control.PopOver;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -61,6 +60,7 @@ public class LogTableController extends Thread{
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yy HH:mm:ss.SSS");
     private FilteredList<LogRecord> filteredData = null;
     private Map<String, Filter> filters = new HashMap<>();
+    PopOver addlInfoPopover = null;
 
     public LogTableController(ObservableList<LogRecord> masterData, boolean tail) {
         this.masterData = masterData;
@@ -88,7 +88,22 @@ public class LogTableController extends Thread{
         filters.put("event", new Filter(false, ""));
         filters.put("globalSearch", new Filter(true, ""));
 
+
         // 0. Initialize the columns.
+        logTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if(addlInfoPopover != null) addlInfoPopover.detach();
+            addlInfoPopover = null;
+            if(newSelection.getAddlInfo() != null){
+                TextArea textArea = new TextArea();
+                textArea.setText(newSelection.getAddlInfo());
+                addlInfoPopover = new PopOver(textArea);
+                addlInfoPopover.setAutoFix(true);
+                addlInfoPopover.sizeToScene();
+                addlInfoPopover.show(filterField);
+
+            }
+        });
+
         level.setCellValueFactory(cellData -> cellData.getValue().levelProperty());
         user.setCellValueFactory(cellData -> cellData.getValue().userProperty());
         company.setCellValueFactory(cellData -> cellData.getValue().companyProperty());

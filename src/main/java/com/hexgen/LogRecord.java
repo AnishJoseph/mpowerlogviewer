@@ -27,6 +27,7 @@ public class LogRecord {
     private final StringProperty event;
     private String timeFormatted = "";
     private boolean hidden = false;
+    private String  addlInfo;
 
 
     public LogRecord(Long id, String user, String company, Long jobId, Long xActionId, String event, LocalDateTime time, String thread, String level, String className, Long line, String msg) {
@@ -207,5 +208,13 @@ public class LogRecord {
 
     public void setEvent(String event) {
         this.event.set(event);
+    }
+
+    public String getAddlInfo() {
+        return addlInfo;
+    }
+
+    public void setAddlInfo(String addlInfo) {
+        this.addlInfo = addlInfo;
     }
 }

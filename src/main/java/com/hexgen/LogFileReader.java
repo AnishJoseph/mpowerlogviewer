@@ -36,6 +36,8 @@ public class LogFileReader extends Thread {
         String line = null;
         FileInputStream fs = null;
         BufferedReader br = null;
+        StringBuffer addlInfo = new StringBuffer();
+        LogRecord logRecord = null;
         try {
             fs = new FileInputStream(logFilename);
             br = new BufferedReader(new InputStreamReader(fs));
@@ -49,9 +51,16 @@ public class LogFileReader extends Thread {
                         Long xActionId = convertToLong(matcher.group(4));
                         Long lineNumber = convertToLong(matcher.group(10));
                         LocalDateTime localDateTime = LocalDateTime.parse(matcher.group(6), formatter);
-                        masterData.add(new LogRecord(recordNumber, matcher.group(1),matcher.group(2),jobId,xActionId,matcher.group(5),localDateTime,matcher.group(7),matcher.group(8),matcher.group(9),lineNumber,matcher.group(11)));
+                        if(addlInfo.length() > 0 && logRecord != null){
+                            logRecord.setAddlInfo(addlInfo.toString());
+                            addlInfo = new StringBuffer();
+                        }
+                        logRecord = new LogRecord(recordNumber, matcher.group(1),matcher.group(2),jobId,xActionId,matcher.group(5),localDateTime,matcher.group(7),matcher.group(8),matcher.group(9),lineNumber,matcher.group(11));
+                        masterData.add(logRecord);
+                    } else {
+                        addlInfo.append(line);
+                        addlInfo.append("\n");
                     }
-
                 } else {
                     sleep(100);
                 }
