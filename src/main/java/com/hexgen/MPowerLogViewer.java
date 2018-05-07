@@ -51,20 +51,19 @@ public class MPowerLogViewer extends Application {
             }
         });
         if(!getParameters().getRaw().isEmpty()){
-            open(getParameters().getRaw().get(0));
+            open(getParameters().getRaw().get(0), false);
         }
 
     }
 
-    private void open(String logFilename){
+    private void open(String logFilename, boolean tail){
         try {
             ObservableList<LogRecord> masterData = FXCollections.observableArrayList();
 
-            LogFileReader logFileReader = new LogFileReader(masterData, logFilename);
-//            logFileReader.readFile(logFilename);
+            LogFileReader logFileReader = new LogFileReader(masterData, logFilename, tail);
 
             FXMLLoader loader = new FXMLLoader(MPowerLogViewer.class.getResource("/fxml/LogTable.fxml"));
-            LogTableController logTableController = new LogTableController(masterData);
+            LogTableController logTableController = new LogTableController(masterData, tail);
             loader.setController(logTableController);
             AnchorPane logRecordsView = loader.load();
 
@@ -95,12 +94,13 @@ public class MPowerLogViewer extends Application {
         launch(args);
     }
     private MenuBar createMenus(Stage stage){
-        Preferences prefs = Preferences.userRoot().node("mPowerLogfileViewer");
 
 
         Menu fileMenu = new Menu("File");
         MenuItem openItem = new MenuItem("Open");
         fileMenu.getItems().add(openItem);
+        MenuItem tailItem = new MenuItem("Tail");
+        fileMenu.getItems().add(tailItem);
         MenuItem exitItem = new MenuItem("Exit");
         fileMenu.getItems().add(exitItem);
 
@@ -113,32 +113,36 @@ public class MPowerLogViewer extends Application {
         menuBar.getMenus().add(helpMenu);
 
 
-        openItem.setOnAction(e -> {
-            String prevDirectory = prefs.get("prevDirectory", null);
-
-            FileChooser fileChooser = new FileChooser();
-            if(prevDirectory != null){
-                File file = new File(prevDirectory);
-                if(file.isDirectory()) {
-                    fileChooser.setInitialDirectory(file);
-                }
-            }
-            fileChooser.setTitle("Choose the mPower debug file");
-            fileChooser.getExtensionFilters().addAll(
-                    new FileChooser.ExtensionFilter("mPower Logs", "im_*.log")
-            );
-            File selectedFile = fileChooser.showOpenDialog(stage);
-            if(selectedFile != null){
-                open(selectedFile.getAbsolutePath());
-                prefs.put("prevDirectory", selectedFile.getParent());
-            }
-        });
+        tailItem.setOnAction(e -> open(stage, true));
+        openItem.setOnAction(e -> open(stage, false));
         aboutItem.setOnAction(e -> {
             System.out.println("Help->About Selected");
         });
         exitItem.setOnAction(e -> Platform.exit());
 
         return menuBar;
+    }
+    private void open(Stage stage, boolean tail){
+        Preferences prefs = Preferences.userRoot().node("mPowerLogfileViewer");
+        String prevDirectory = prefs.get("prevDirectory", null);
+
+        FileChooser fileChooser = new FileChooser();
+        if(prevDirectory != null){
+            File file = new File(prevDirectory);
+            if(file.isDirectory()) {
+                fileChooser.setInitialDirectory(file);
+            }
+        }
+        fileChooser.setTitle("Choose the mPower debug file");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("mPower Logs", "im_*.log")
+        );
+        File selectedFile = fileChooser.showOpenDialog(stage);
+        if(selectedFile != null){
+            open(selectedFile.getAbsolutePath(), tail);
+            prefs.put("prevDirectory", selectedFile.getParent());
+        }
+
     }
     private Node createFilterPane(LogTableController logTableController){
         VBox filterVBox = null;

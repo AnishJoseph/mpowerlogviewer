@@ -54,6 +54,7 @@ public class LogTableController extends Thread{
     private TableColumn<LogRecord, LocalDateTime> time;
     @FXML
     private TableColumn<LogRecord, String> event;
+    private boolean tail = false;
 
 
     private ObservableList<LogRecord> masterData = null;
@@ -61,8 +62,9 @@ public class LogTableController extends Thread{
     private FilteredList<LogRecord> filteredData = null;
     private Map<String, Filter> filters = new HashMap<>();
 
-    public LogTableController(ObservableList<LogRecord> masterData) {
+    public LogTableController(ObservableList<LogRecord> masterData, boolean tail) {
         this.masterData = masterData;
+        this.tail = tail;
     }
 
     /**
@@ -126,6 +128,10 @@ public class LogTableController extends Thread{
         sortedData.comparatorProperty().bind(logTable.comparatorProperty());
 
         // 5. Add sorted (and filtered) data to the table.
+        logTable.getSortOrder().add(rowNum);
+        rowNum.setComparator(rowNum.getComparator().reversed());
+
+
         logTable.setItems(sortedData);
     }
     private void filterForGlobalSearch(String searchStr, boolean firstCheck){

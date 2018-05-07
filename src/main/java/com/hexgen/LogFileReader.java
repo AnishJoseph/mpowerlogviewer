@@ -17,10 +17,13 @@ public class LogFileReader extends Thread {
     private ObservableList<LogRecord> masterData = null;
     private boolean shutdown = false;
     private String logFilename;
+    private boolean tail;
 
-    public LogFileReader(ObservableList<LogRecord> masterData, String logFilename) {
+
+    public LogFileReader(ObservableList<LogRecord> masterData, String logFilename, boolean tail) {
         this.masterData = masterData;
         this.logFilename = logFilename;
+        this.tail = tail;
         this.start();
     }
 
