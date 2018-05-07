@@ -9,6 +9,8 @@ import java.util.prefs.Preferences;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -23,63 +25,68 @@ import javafx.stage.Stage;
  * @author Marco Jakob
  */
 public class MPowerLogViewer extends Application {
-    private static String logFilename = null;
 
-    private LogTableController logTableController;
-    private LogFileReader logFileReader = null;
     private static Preferences prefs = Preferences.userRoot().node("mPowerLogfileViewer");
+    private static TabPane tabPane;
 
 
     @Override
     public void start(Stage primaryStage) {
-        try {
-            logFileReader = new LogFileReader();
-            logFileReader.readFile(logFilename);
-            FXMLLoader loader = new FXMLLoader(MPowerLogViewer.class.getResource("/fxml/LogTable.fxml"));
 
-            AnchorPane logRecordsView = loader.load();
-            logTableController = loader.getController();
+        BorderPane border = new BorderPane();
+        border.setTop(createMenus(primaryStage));
+        this.tabPane = new TabPane();
+        border.setCenter(tabPane);
 
-            BorderPane border = new BorderPane();
+        Scene scene = new Scene(border, 1000, 800);
+        primaryStage.setTitle("mPower Log Analyser");
+        primaryStage.setScene(scene);
 
-            border.setTop(createMenus(primaryStage));
-            border.setLeft(createFilterPane());
-            border.setCenter(logRecordsView);
-
-            Scene scene = new Scene(border, 1000, 800);
-            primaryStage.setTitle("mPower Log Analyser");
-            primaryStage.setScene(scene);
-
-            primaryStage.setFullScreen(true);
-            primaryStage.show();
-            primaryStage.setOnCloseRequest(event -> {
-                LogFileReader.setRunning(false);
-            });
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        primaryStage.setFullScreen(true);
+        primaryStage.show();
+        primaryStage.setOnCloseRequest(event -> {
+//            LogFileReader.shutdown();
+        });
+        if(!getParameters().getRaw().isEmpty()){
+            open(getParameters().getRaw().get(0));
         }
+
     }
 
+    private void open(String logFilename){
+        try {
+            ObservableList<LogRecord> masterData = FXCollections.observableArrayList();
+
+            LogFileReader logFileReader = new LogFileReader(masterData);
+            logFileReader.readFile(logFilename);
+
+            FXMLLoader loader = new FXMLLoader(MPowerLogViewer.class.getResource("/fxml/LogTable.fxml"));
+            LogTableController logTableController = new LogTableController(masterData);
+            loader.setController(logTableController);
+            AnchorPane logRecordsView = loader.load();
+
+            Tab tab = new Tab();
+            tab.setText(logFilename);
+
+            BorderPane borderPane = new BorderPane();
+            borderPane.setLeft(createFilterPane(logTableController));
+            borderPane.setCenter(logRecordsView);
+            tab.setContent(borderPane);
+            tabPane.getTabs().add(tab);
+            tabPane.getSelectionModel().select(tab);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
     public static void usage(){
         System.out.println("Usage : MPowerLogViewer <mpower debug file>");
     }
     public static void main(String[] args) {
-        if(args.length < 1){
-            usage();
-            System.exit(-1);
-        }
-
-        File file = new File(args[0]);
-        if(!file.exists()){
-            System.out.println("File " + args[0] + " does not exist!!. Exiting...");
-            System.exit(-1);
-        }
-        logFilename = args[0];
         launch(args);
     }
     private MenuBar createMenus(Stage stage){
-        Preferences prefs = Preferences.userRoot().node(this.getClass().getName());
+        Preferences prefs = Preferences.userRoot().node("mPowerLogfileViewer");
 
 
         Menu fileMenu = new Menu("File");
@@ -113,7 +120,7 @@ public class MPowerLogViewer extends Application {
             );
             File selectedFile = fileChooser.showOpenDialog(stage);
             if(selectedFile != null){
-                logFileReader.readFile(selectedFile.getAbsolutePath());
+                open(selectedFile.getAbsolutePath());
                 prefs.put("prevDirectory", selectedFile.getParent());
             }
         });
@@ -124,7 +131,7 @@ public class MPowerLogViewer extends Application {
 
         return menuBar;
     }
-    private Node createFilterPane(){
+    private Node createFilterPane(LogTableController logTableController){
         VBox filterVBox = null;
         try {
             FXMLLoader loader = new FXMLLoader(MPowerLogViewer.class.getResource("/fxml/filters.fxml"));

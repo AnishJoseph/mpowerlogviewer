@@ -1,6 +1,5 @@
 package com.hexgen;
 
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.io.*;
@@ -13,17 +12,12 @@ import java.util.regex.Pattern;
  * Created by anishjoseph on 25/04/18.
  */
 public class LogFileReader extends Thread {
-    private static ObservableList<LogRecord> masterData = FXCollections.observableArrayList();
-    private static boolean running = true;
     private static final Pattern pattern = Pattern.compile("(.*?):(.*?):(\\d*?):(\\d*?):(.*?):~:(.*?):~:(.*?):~:(.*?):~:(.*?):~:(.*?):~:(.*)");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yy HH:mm:ss.SSS");
+    private ObservableList<LogRecord> masterData = null;
 
-    public static void setRunning(boolean running) {
-        LogFileReader.running = running;
-    }
-
-    public static ObservableList<LogRecord> getMasterData() {
-        return masterData;
+    public LogFileReader(ObservableList<LogRecord> masterData) {
+        this.masterData = masterData;
     }
 
     private Long convertToLong(String value){
@@ -33,7 +27,6 @@ public class LogFileReader extends Thread {
     }
 
     public void readFile(String logFilename) {
-        masterData.clear();
         String line = null;
         FileInputStream fs = null;
         BufferedReader br = null;
@@ -57,5 +50,9 @@ public class LogFileReader extends Thread {
             System.exit(3);
 
         }
+    }
+
+    public void shutdown() {
+
     }
 }

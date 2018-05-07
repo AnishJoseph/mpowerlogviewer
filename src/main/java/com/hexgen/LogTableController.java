@@ -15,9 +15,7 @@ import javafx.scene.control.TextField;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -58,11 +56,15 @@ public class LogTableController extends Thread{
     private TableColumn<LogRecord, String> event;
 
 
-    private static boolean isRunning = true;
     private ObservableList<LogRecord> masterData = null;
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yy HH:mm:ss.SSS");
     private FilteredList<LogRecord> filteredData = null;
     private Map<String, Filter> filters = new HashMap<>();
+
+    public LogTableController(ObservableList<LogRecord> masterData) {
+        this.masterData = masterData;
+    }
+
     /**
      * Initializes the controller class. This method is automatically called
      * after the fxml file has been loaded.
@@ -84,7 +86,6 @@ public class LogTableController extends Thread{
         filters.put("event", new Filter(false, ""));
         filters.put("globalSearch", new Filter(true, ""));
 
-        masterData = LogFileReader.getMasterData();
         // 0. Initialize the columns.
         level.setCellValueFactory(cellData -> cellData.getValue().levelProperty());
         user.setCellValueFactory(cellData -> cellData.getValue().userProperty());
