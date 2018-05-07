@@ -35,7 +35,7 @@ public class FilterController extends Thread{
     @FXML
     private CheckBox jobIdChkbox;
     @FXML
-    private CheckComboBox<String> levelText;
+    private CheckComboBox<String> levelSelector;
 
     @FXML
     private CheckBox levelChkbox;
@@ -43,6 +43,14 @@ public class FilterController extends Thread{
     private TextField companyText;
     @FXML
     private CheckBox companyChkbox;
+    @FXML
+    private TextField userText;
+    @FXML
+    private CheckBox userChkbox;
+    @FXML
+    private TextField msgText;
+    @FXML
+    private CheckBox msgChkbox;
     @FXML
     private TextField eventText;
     @FXML
@@ -74,7 +82,7 @@ public class FilterController extends Thread{
         strings.add("INFO");
         strings.add("DEBUG");
         strings.add("TRACE");
-        levelText.getItems().addAll(strings);
+        levelSelector.getItems().addAll(strings);
 
         PauseTransition pause = new PauseTransition(Duration.seconds(1));
         tidText.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -91,9 +99,9 @@ public class FilterController extends Thread{
             });
             pause.playFromStart();
         });
-        levelText.getCheckModel().getCheckedItems().addListener((ListChangeListener<String>) c -> {
+        levelSelector.getCheckModel().getCheckedItems().addListener((ListChangeListener<String>) c -> {
             pause.setOnFinished(event -> {
-                filters.get("level").setSearchSpec(levelText.getCheckModel().getCheckedItems());
+                filters.get("level").setSearchSpec(levelSelector.getCheckModel().getCheckedItems());
                 logTableController.filter();
             });
             pause.playFromStart();
@@ -101,6 +109,20 @@ public class FilterController extends Thread{
         companyText.textProperty().addListener((observable, oldValue, newValue) -> {
             pause.setOnFinished(event -> {
                 filters.get("company").setSearchSpec(companyText.getText());
+                logTableController.filter();
+            });
+            pause.playFromStart();
+        });
+        userText.textProperty().addListener((observable, oldValue, newValue) -> {
+            pause.setOnFinished(event -> {
+                filters.get("user").setSearchSpec(userText.getText());
+                logTableController.filter();
+            });
+            pause.playFromStart();
+        });
+        msgText.textProperty().addListener((observable, oldValue, newValue) -> {
+            pause.setOnFinished(event -> {
+                filters.get("msg").setSearchSpec(msgText.getText());
                 logTableController.filter();
             });
             pause.playFromStart();
@@ -171,16 +193,16 @@ public class FilterController extends Thread{
         }
     }
     public void levelChkBoxClicked(Event e){
-        levelText.setVisible(levelChkbox.isSelected());
+        levelSelector.setVisible(levelChkbox.isSelected());
         if(levelChkbox.isSelected()){
             filters.get("level").setEnabled(true);
-            ObservableList<String> checkedItems = levelText.getCheckModel().getCheckedItems();
+            ObservableList<String> checkedItems = levelSelector.getCheckModel().getCheckedItems();
             if(!checkedItems.isEmpty()) filters.get("level").setSearchSpec(checkedItems);
             if(!checkedItems.isEmpty()) {
                 logTableController.filter();
             }
         } else {
-            levelText.setVisible(false);
+            levelSelector.setVisible(false);
             filters.get("level").setSearchSpec(null);
             logTableController.filter();
         }
@@ -197,6 +219,36 @@ public class FilterController extends Thread{
         } else {
             companyText.setVisible(false);
             filters.get("company").setSearchSpec(null);
+            logTableController.filter();
+        }
+    }
+    public void userChkBoxClicked(Event e){
+        userText.setVisible(userChkbox.isSelected());
+        if(userChkbox.isSelected()){
+            filters.get("user").setEnabled(true);
+            String userTex = userText.getText();
+            if(!userTex.isEmpty()) filters.get("user").setSearchSpec(userTex);
+            if(userTex != null && !userTex.isEmpty()) {
+                logTableController.filter();
+            }
+        } else {
+            userText.setVisible(false);
+            filters.get("user").setSearchSpec(null);
+            logTableController.filter();
+        }
+    }
+    public void msgChkBoxClicked(Event e){
+        msgText.setVisible(msgChkbox.isSelected());
+        if(msgChkbox.isSelected()){
+            filters.get("msg").setEnabled(true);
+            String msgTex = msgText.getText();
+            if(!msgTex.isEmpty()) filters.get("msg").setSearchSpec(msgTex);
+            if(msgTex != null && !msgTex.isEmpty()) {
+                logTableController.filter();
+            }
+        } else {
+            msgText.setVisible(false);
+            filters.get("msg").setSearchSpec(null);
             logTableController.filter();
         }
     }

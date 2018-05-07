@@ -17,7 +17,7 @@
     <CheckBox fx:id="jobIdChkbox" text="Job ID Filter" onAction="#jobIdChkBoxClicked"/>
     <TextField fx:id="jobIdText" visible="false"/>
     <CheckBox fx:id="levelChkbox" text="Level Filter" onAction="#levelChkBoxClicked"/>
-    <CheckComboBox fx:id="levelText" visible="false">
+    <CheckComboBox fx:id="levelSelector" visible="false">
 <!--
         <items>
             <FXCollections fx:factory="observableArrayList">
@@ -32,6 +32,10 @@
     </CheckComboBox>
     <CheckBox fx:id="companyChkbox" text="Company Filter" onAction="#companyChkBoxClicked"/>
     <TextField fx:id="companyText" visible="false"/>
+    <CheckBox fx:id="userChkbox" text="User Filter" onAction="#userChkBoxClicked"/>
+    <TextField fx:id="userText" visible="false"/>
+    <CheckBox fx:id="msgChkbox" text="Msg Filter" onAction="#msgChkBoxClicked"/>
+    <TextField fx:id="msgText" visible="false"/>
     <CheckBox fx:id="eventChkbox" text="Event Filter" onAction="#eventChkBoxClicked"/>
     <TextField fx:id="eventText" visible="false"/>
     <CheckBox fx:id="timeChkbox" text="Time Filter" onAction="#timeChkBoxClicked"/>

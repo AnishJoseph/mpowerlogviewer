@@ -43,7 +43,7 @@ public class LogTableController extends Thread{
     @FXML
     private TableColumn<LogRecord, String> thread;
     @FXML
-    private TableColumn<LogRecord, Integer> id;
+    private TableColumn<LogRecord, Integer> rowNum;
     @FXML
     private TableColumn<LogRecord, Integer> xActionId;
     @FXML
@@ -92,7 +92,7 @@ public class LogTableController extends Thread{
         msg.setCellValueFactory(cellData -> cellData.getValue().msgProperty());
         className.setCellValueFactory(cellData -> cellData.getValue().classNameProperty());
         thread.setCellValueFactory(cellData -> cellData.getValue().threadProperty());
-        id.setCellValueFactory(cellData -> cellData.getValue().idProperty());
+        rowNum.setCellValueFactory(cellData -> cellData.getValue().idProperty());
         xActionId.setCellValueFactory(cellData -> cellData.getValue().xActionIdProperty());
         jobId.setCellValueFactory(cellData -> cellData.getValue().jobIdProperty());
         line.setCellValueFactory(cellData -> cellData.getValue().lineProperty());
@@ -257,6 +257,46 @@ public class LogTableController extends Thread{
         });
 
     }
+    private void filterForUser(String searchStr, boolean firstCheck) {
+        filteredData.setPredicate(logRecord -> {
+
+            String upperCaseFilter = searchStr.toUpperCase();
+            if(firstCheck) {
+                logRecord.setHidden(false);
+            } else {
+                if(logRecord.isHidden()) {
+                    return  false;
+                }
+            }
+            if (logRecord.userProperty() != null && logRecord.getUser().contains(upperCaseFilter)) {
+                logRecord.setHidden(false);
+                return true;
+            }
+            logRecord.setHidden(true);
+            return false; // Does not match.
+        });
+
+    }
+    private void filterForMsg(String searchStr, boolean firstCheck) {
+        filteredData.setPredicate(logRecord -> {
+
+            String upperCaseFilter = searchStr.toUpperCase();
+            if(firstCheck) {
+                logRecord.setHidden(false);
+            } else {
+                if(logRecord.isHidden()) {
+                    return  false;
+                }
+            }
+            if (logRecord.msgProperty() != null && logRecord.getMsg().contains(upperCaseFilter)) {
+                logRecord.setHidden(false);
+                return true;
+            }
+            logRecord.setHidden(true);
+            return false; // Does not match.
+        });
+
+    }
     private void filterForEvent(String searchStr, boolean firstCheck) {
         filteredData.setPredicate(logRecord -> {
 
@@ -330,6 +370,10 @@ public class LogTableController extends Thread{
                 filterForCompany((String) filter.getSearchSpec(), firstCheck);
             if(filterName.equals("event"))
                 filterForEvent((String) filter.getSearchSpec(), firstCheck);
+            if(filterName.equals("user"))
+                filterForUser((String) filter.getSearchSpec(), firstCheck);
+            if(filterName.equals("msg"))
+                filterForMsg((String) filter.getSearchSpec(), firstCheck);
 
 
 
