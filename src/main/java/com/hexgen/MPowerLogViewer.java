@@ -5,6 +5,8 @@ package com.hexgen;
  */
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.prefs.Preferences;
 
 import javafx.application.Application;
@@ -22,13 +24,12 @@ import javafx.stage.Stage;
 /**
  * Main class to start the application.
  *
- * @author Marco Jakob
+ * @author Jayashree R Gowda (kappa)
  */
 public class MPowerLogViewer extends Application {
 
-    private static Preferences prefs = Preferences.userRoot().node("mPowerLogfileViewer");
-    private static TabPane tabPane;
-
+    private TabPane tabPane;
+    private Map<String, LogFileReader> openReaders = new HashMap<>();
 
     @Override
     public void start(Stage primaryStage) {
@@ -45,7 +46,9 @@ public class MPowerLogViewer extends Application {
         primaryStage.setFullScreen(true);
         primaryStage.show();
         primaryStage.setOnCloseRequest(event -> {
-//            LogFileReader.shutdown();
+            for (Map.Entry<String, LogFileReader> logFileReaderEntry : openReaders.entrySet()) {
+                logFileReaderEntry.getValue().shutdown();
+            }
         });
         if(!getParameters().getRaw().isEmpty()){
             open(getParameters().getRaw().get(0));
@@ -67,6 +70,10 @@ public class MPowerLogViewer extends Application {
 
             Tab tab = new Tab();
             tab.setText(logFilename);
+            tab.setOnCloseRequest(event -> {
+                logFileReader.shutdown();
+                openReaders.remove(tab.getId());
+            } );
 
             BorderPane borderPane = new BorderPane();
             borderPane.setLeft(createFilterPane(logTableController));
@@ -74,6 +81,8 @@ public class MPowerLogViewer extends Application {
             tab.setContent(borderPane);
             tabPane.getTabs().add(tab);
             tabPane.getSelectionModel().select(tab);
+            openReaders.put(tab.getId(), logFileReader);
+
         }catch (Exception e){
             e.printStackTrace();
         }
