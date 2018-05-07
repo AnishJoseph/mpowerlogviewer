@@ -60,8 +60,8 @@ public class MPowerLogViewer extends Application {
         try {
             ObservableList<LogRecord> masterData = FXCollections.observableArrayList();
 
-            LogFileReader logFileReader = new LogFileReader(masterData);
-            logFileReader.readFile(logFilename);
+            LogFileReader logFileReader = new LogFileReader(masterData, logFilename);
+//            logFileReader.readFile(logFilename);
 
             FXMLLoader loader = new FXMLLoader(MPowerLogViewer.class.getResource("/fxml/LogTable.fxml"));
             LogTableController logTableController = new LogTableController(masterData);
