@@ -129,7 +129,9 @@ public class LogTableController extends Thread{
 
         // 5. Add sorted (and filtered) data to the table.
         logTable.getSortOrder().add(rowNum);
-        rowNum.setComparator(rowNum.getComparator().reversed());
+        if(tail) {
+            rowNum.setComparator(rowNum.getComparator().reversed());
+        }
 
 
         logTable.setItems(sortedData);

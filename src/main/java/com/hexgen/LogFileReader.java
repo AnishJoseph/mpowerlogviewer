@@ -24,7 +24,6 @@ public class LogFileReader extends Thread {
         this.masterData = masterData;
         this.logFilename = logFilename;
         this.tail = tail;
-        this.start();
     }
 
     private Long convertToLong(String value){
@@ -58,6 +57,7 @@ public class LogFileReader extends Thread {
                 }
 
             }
+            System.out.println("Shutting down " + logFilename);
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -66,5 +66,9 @@ public class LogFileReader extends Thread {
 
     public void shutdown() {
         this.shutdown = true;
+    }
+
+    public void process() {
+        this.start();
     }
 }

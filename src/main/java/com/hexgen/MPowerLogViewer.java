@@ -30,6 +30,7 @@ public class MPowerLogViewer extends Application {
 
     private TabPane tabPane;
     private Map<String, LogFileReader> openReaders = new HashMap<>();
+    private Integer tabId = 1;
 
     @Override
     public void start(Stage primaryStage) {
@@ -47,6 +48,7 @@ public class MPowerLogViewer extends Application {
         primaryStage.show();
         primaryStage.setOnCloseRequest(event -> {
             for (Map.Entry<String, LogFileReader> logFileReaderEntry : openReaders.entrySet()) {
+                System.out.println("Shutting down logFileReaderEntry = " + logFileReaderEntry.getKey());
                 logFileReaderEntry.getValue().shutdown();
             }
         });
@@ -80,7 +82,10 @@ public class MPowerLogViewer extends Application {
             tab.setContent(borderPane);
             tabPane.getTabs().add(tab);
             tabPane.getSelectionModel().select(tab);
+            tab.setId(tabId.toString());
+            tabId++;
             openReaders.put(tab.getId(), logFileReader);
+            logFileReader.process();
 
         }catch (Exception e){
             e.printStackTrace();
