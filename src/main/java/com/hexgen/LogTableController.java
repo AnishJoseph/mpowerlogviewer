@@ -9,7 +9,7 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
+import javafx.stage.Popup;
 import org.controlsfx.control.PopOver;
 
 import java.time.LocalDateTime;
@@ -95,12 +95,15 @@ public class LogTableController extends Thread{
             addlInfoPopover = null;
             if(newSelection.getAddlInfo() != null){
                 TextArea textArea = new TextArea();
+                textArea.setEditable(false);
                 textArea.setText(newSelection.getAddlInfo());
-                addlInfoPopover = new PopOver(textArea);
-                addlInfoPopover.setAutoFix(true);
-                addlInfoPopover.sizeToScene();
-                addlInfoPopover.show(filterField);
-
+                textArea.setPrefWidth(1000);
+                textArea.setPrefHeight(600);
+                Popup popup = new Popup();
+                popup.centerOnScreen();
+                popup.setAutoHide(true);
+                popup.getContent().add(textArea);
+                popup.show(logTable.getScene().getWindow());
             }
         });
 

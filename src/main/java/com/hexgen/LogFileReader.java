@@ -14,6 +14,8 @@ import java.util.regex.Pattern;
 public class LogFileReader extends Thread {
     private static final Pattern pattern = Pattern.compile("(.*?):(.*?):(\\d*?):(\\d*?):(.*?):~:(.*?):~:(.*?):~:(.*?):~:(.*?):~:(.*?):~:(.*)");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yy HH:mm:ss.SSS");
+    private static final Pattern P1ThreadPattern  = Pattern.compile("\\s*Camel\\s*\\(.*?\\)\\s*thread\\s*#(\\d+)\\s*-\\s*JmsConsumer\\[(.*?)\\]");
+    private static final Pattern P0ThreadPattern  = Pattern.compile("\\s*http-[n|b]io-\\d+-.*?-(\\d*)");
     private ObservableList<LogRecord> masterData = null;
     private boolean shutdown = false;
     private String logFilename;
@@ -51,11 +53,24 @@ public class LogFileReader extends Thread {
                         Long xActionId = convertToLong(matcher.group(4));
                         Long lineNumber = convertToLong(matcher.group(10));
                         LocalDateTime localDateTime = LocalDateTime.parse(matcher.group(6), formatter);
+//                        Camel (hexContext) thread #0 - JmsConsumer[p1]
+                        String threadName = matcher.group(7).trim();
+                        Matcher p1matcher = P1ThreadPattern.matcher(threadName);
+                        if(p1matcher.matches()){
+                            threadName = p1matcher.group(2) + " - Thd" + p1matcher.group(1);
+                        } else {
+                            Matcher p0matcher = P0ThreadPattern.matcher(threadName);
+                            if(p0matcher.matches()){
+                                threadName = "P0 - Thd" + p0matcher.group(1);
+                            } else {
+                                if(threadName.startsWith("wro4j-")) threadName = "wro";
+                            }
+                        }
                         if(addlInfo.length() > 0 && logRecord != null){
                             logRecord.setAddlInfo(addlInfo.toString());
                             addlInfo = new StringBuffer();
                         }
-                        logRecord = new LogRecord(recordNumber, matcher.group(1),matcher.group(2),jobId,xActionId,matcher.group(5),localDateTime,matcher.group(7),matcher.group(8),matcher.group(9),lineNumber,matcher.group(11));
+                        logRecord = new LogRecord(recordNumber, matcher.group(1).trim(),matcher.group(2).trim(),jobId,xActionId,matcher.group(5).trim(),localDateTime,threadName,matcher.group(8).trim(),matcher.group(9).trim(),lineNumber,matcher.group(11).trim());
                         masterData.add(logRecord);
                     } else {
                         addlInfo.append(line);
@@ -66,7 +81,6 @@ public class LogFileReader extends Thread {
                 }
 
             }
-            System.out.println("Shutting down " + logFilename);
         } catch (Exception e) {
             e.printStackTrace();
             return;

@@ -8,15 +8,15 @@
     <children>
         <TableView fx:id="logTable" prefHeight="-1.0" prefWidth="-1.0" tableMenuButtonVisible="false" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="40.0">
             <columns>
-                <TableColumn fx:id="rowNum" maxWidth="1000.0" minWidth="10.0" prefWidth="120.0" text="Row #" />
-                <TableColumn fx:id="level" maxWidth="1700.0" minWidth="10.0" prefWidth="120.0" text="L" />
-                <TableColumn fx:id="user" maxWidth="3000.0" minWidth="10.0" prefWidth="120.0" text="User" />
-                <TableColumn fx:id="company" maxWidth="3000.0" minWidth="10.0" prefWidth="120.0" text="Company" />
-                <TableColumn fx:id="jobId" maxWidth="2000.0" minWidth="10.0" prefWidth="120.0" text="JobId" />
-                <TableColumn fx:id="xActionId" maxWidth="1000.0" minWidth="10.0" prefWidth="120.0" text="TID" />
-                <TableColumn fx:id="event" maxWidth="1000.0" minWidth="10.0" prefWidth="120.0" text="Event" />
-                <TableColumn fx:id="thread" maxWidth="5000.0" minWidth="10.0" prefWidth="120.0" text="Thread" />
-                <TableColumn fx:id="time" maxWidth="4500.0" minWidth="10.0" prefWidth="120.0" text="Time" />
+                <TableColumn fx:id="rowNum" maxWidth="600.0" minWidth="10.0" prefWidth="120.0" text="Row" />
+                <TableColumn fx:id="level" maxWidth="800.0" minWidth="10.0" prefWidth="120.0" text="L" />
+                <TableColumn fx:id="user" maxWidth="1000.0" minWidth="10.0" prefWidth="120.0" text="User" />
+                <TableColumn fx:id="company" maxWidth="1000.0" minWidth="10.0" prefWidth="120.0" text="Company" />
+                <TableColumn fx:id="jobId" maxWidth="1200.0" minWidth="10.0" prefWidth="120.0" text="JobId" />
+                <TableColumn fx:id="xActionId" maxWidth="500.0" minWidth="10.0" prefWidth="120.0" text="TID" />
+                <TableColumn fx:id="event" maxWidth="3000.0" minWidth="10.0" prefWidth="120.0" text="Event" />
+                <TableColumn fx:id="thread" maxWidth="2000.0" minWidth="10.0" prefWidth="120.0" text="Thread" />
+                <TableColumn fx:id="time" maxWidth="3000.0" minWidth="10.0" prefWidth="120.0" text="Time" />
                 <TableColumn fx:id="msg" maxWidth="7000.0" minWidth="10.0" prefWidth="120.0" text="Msg" />
                 <TableColumn fx:id="className" maxWidth="4000.0" minWidth="10.0" prefWidth="120.0" text="Class" />
                 <TableColumn fx:id="line" maxWidth="1000.0" minWidth="10.0" prefWidth="120.0" text="Line" />
