@@ -6,12 +6,13 @@
 
 <AnchorPane minWidth="315.0" prefHeight="300.0" prefWidth="315.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <TableView fx:id="logTable" prefHeight="-1.0" prefWidth="-1.0" tableMenuButtonVisible="false" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="40.0">
+        <TableView fx:id="logTable" prefHeight="-1.0" prefWidth="-1.0" tableMenuButtonVisible="true"
+                   AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="40.0" >
             <columns>
-                <TableColumn fx:id="rowNum" maxWidth="600.0" minWidth="10.0" prefWidth="120.0" text="Row" />
+                <TableColumn fx:id="rowNum" maxWidth="600.0" minWidth="10.0" prefWidth="120.0" text="Row"/>
                 <TableColumn fx:id="level" maxWidth="800.0" minWidth="10.0" prefWidth="120.0" text="L" />
                 <TableColumn fx:id="user" maxWidth="1000.0" minWidth="10.0" prefWidth="120.0" text="User" />
-                <TableColumn fx:id="company" maxWidth="1000.0" minWidth="10.0" prefWidth="120.0" text="Company" />
+                <TableColumn fx:id="company" maxWidth="1000.0" minWidth="10.0" prefWidth="120.0" text="Company" visible="false"/>
                 <TableColumn fx:id="jobId" maxWidth="1200.0" minWidth="10.0" prefWidth="120.0" text="JobId" />
                 <TableColumn fx:id="xActionId" maxWidth="500.0" minWidth="10.0" prefWidth="120.0" text="TID" />
                 <TableColumn fx:id="event" maxWidth="3000.0" minWidth="10.0" prefWidth="120.0" text="Event" />

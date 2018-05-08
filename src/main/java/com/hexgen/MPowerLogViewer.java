@@ -14,8 +14,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -65,10 +63,10 @@ public class MPowerLogViewer extends Application {
 
             LogFileReader logFileReader = new LogFileReader(masterData, logFilename, tail);
 
-            FXMLLoader loader = new FXMLLoader(MPowerLogViewer.class.getResource("/fxml/LogTable.fxml"));
+            FXMLLoader logTableLoader = new FXMLLoader(MPowerLogViewer.class.getResource("/fxml/LogTable.fxml"));
             LogTableController logTableController = new LogTableController(masterData, tail);
-            loader.setController(logTableController);
-            AnchorPane logRecordsView = loader.load();
+            logTableLoader.setController(logTableController);
+            AnchorPane logRecordsView = logTableLoader.load();
 
             Tab tab = new Tab();
             tab.setText(logFilename);
@@ -77,8 +75,23 @@ public class MPowerLogViewer extends Application {
                 openReaders.remove(tab.getId());
             } );
 
+            FilterController filterController = null;
+            VBox filterVBox = null;
+            try {
+                FXMLLoader filterLoader = new FXMLLoader(MPowerLogViewer.class.getResource("/fxml/filters.fxml"));
+                filterVBox = filterLoader.load();
+                filterController = filterLoader.getController();
+                filterController.setLogTableController(logTableController);
+                filterController.setFilters(logTableController.getFilters());
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(4);
+            }
+            logTableController.setFilterController(filterController);
+
+
             BorderPane borderPane = new BorderPane();
-            borderPane.setLeft(createFilterPane(logTableController));
+            borderPane.setLeft(filterVBox);
             borderPane.setCenter(logRecordsView);
             tab.setContent(borderPane);
             tabPane.getTabs().add(tab);
@@ -149,19 +162,5 @@ public class MPowerLogViewer extends Application {
             prefs.put("prevDirectory", selectedFile.getParent());
         }
 
-    }
-    private Node createFilterPane(LogTableController logTableController){
-        VBox filterVBox = null;
-        try {
-            FXMLLoader loader = new FXMLLoader(MPowerLogViewer.class.getResource("/fxml/filters.fxml"));
-            filterVBox = loader.load();
-            FilterController filterController = loader.getController();
-            filterController.setLogTableController(logTableController);
-            filterController.setFilters(logTableController.getFilters());
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(4);
-        }
-        return filterVBox;
     }
 }

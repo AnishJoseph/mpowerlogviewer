@@ -297,4 +297,9 @@ public class FilterController extends Thread{
     public void setFilters(Map<String, Filter> filters) {
         this.filters = filters;
     }
+
+    public void addJobIdFilter(String jobId) {
+        jobIdText.setText(jobId);
+        jobIdChkbox.fire();
+    }
 }

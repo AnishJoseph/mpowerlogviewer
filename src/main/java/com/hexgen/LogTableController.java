@@ -9,8 +9,8 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Popup;
-import org.controlsfx.control.PopOver;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -60,7 +60,7 @@ public class LogTableController extends Thread{
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yy HH:mm:ss.SSS");
     private FilteredList<LogRecord> filteredData = null;
     private Map<String, Filter> filters = new HashMap<>();
-    PopOver addlInfoPopover = null;
+    private FilterController filterController;
 
     public LogTableController(ObservableList<LogRecord> masterData, boolean tail) {
         this.masterData = masterData;
@@ -89,36 +89,77 @@ public class LogTableController extends Thread{
         filters.put("globalSearch", new Filter(true, ""));
 
 
-        // 0. Initialize the columns.
-        logTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if(addlInfoPopover != null) addlInfoPopover.detach();
-            addlInfoPopover = null;
-            if(newSelection.getAddlInfo() != null){
-                TextArea textArea = new TextArea();
-                textArea.setEditable(false);
-                textArea.setText(newSelection.getAddlInfo());
-                textArea.setPrefWidth(1000);
-                textArea.setPrefHeight(600);
-                Popup popup = new Popup();
-                popup.centerOnScreen();
-                popup.setAutoHide(true);
-                popup.getContent().add(textArea);
-                popup.show(logTable.getScene().getWindow());
-            }
-        });
+//        logTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            /* Listener for when a row is clicked - right now we have nothing to do */
+//        });
 
         level.setCellValueFactory(cellData -> cellData.getValue().levelProperty());
         user.setCellValueFactory(cellData -> cellData.getValue().userProperty());
         company.setCellValueFactory(cellData -> cellData.getValue().companyProperty());
-        msg.setCellValueFactory(cellData -> cellData.getValue().msgProperty());
         className.setCellValueFactory(cellData -> cellData.getValue().classNameProperty());
         thread.setCellValueFactory(cellData -> cellData.getValue().threadProperty());
         rowNum.setCellValueFactory(cellData -> cellData.getValue().idProperty());
         xActionId.setCellValueFactory(cellData -> cellData.getValue().xActionIdProperty());
-        jobId.setCellValueFactory(cellData -> cellData.getValue().jobIdProperty());
         line.setCellValueFactory(cellData -> cellData.getValue().lineProperty());
         event.setCellValueFactory(cellData -> cellData.getValue().eventProperty());
         time.setCellValueFactory(cellData -> cellData.getValue().timeProperty());
+        jobId.setCellValueFactory(cellData -> cellData.getValue().jobIdProperty());
+        jobId.setCellFactory(col -> {
+            final TableCell tableCell = new TableCell<LogRecord, Integer>() {
+                @Override
+                protected void updateItem(Integer item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(item == null ? null : item.toString());
+                }
+            };
+            MenuItem filterMenuItem = new MenuItem("Filter");
+            ContextMenu contextMenu = new ContextMenu(filterMenuItem);
+            tableCell.setContextMenu(contextMenu);
+            filterMenuItem.setOnAction(t -> {
+                Integer jobId = (Integer) tableCell.getItem();
+                if(jobId != null ) {
+                    filterController.addJobIdFilter(jobId.toString());
+                }
+            });
+
+            return tableCell;
+        });
+
+        msg.setCellValueFactory(cellData -> cellData.getValue().msgProperty());
+        msg.setCellFactory(col -> {
+            Popup p = null;
+            TableCell tableCell = new TableCell<LogRecord, String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(item);
+
+                }
+            };
+            tableCell.addEventHandler(MouseEvent.MOUSE_ENTERED, t -> {
+                if(tableCell.getParent() instanceof  TableRow ) {
+                    LogRecord logRecord = (LogRecord) ((TableRow) tableCell.getParent()).getItem();
+                    if (logRecord != null && logRecord.getAddlInfo() != null) {
+                        TextArea textArea = new TextArea();
+                        textArea.setEditable(false);
+                        textArea.setText(logRecord.getAddlInfo());
+                        textArea.setPrefWidth(1000);
+                        textArea.setPrefHeight(600);
+                        Popup popup = new Popup();
+                        popup.centerOnScreen();
+                        popup.setAutoHide(true);
+                        popup.getContent().add(textArea);
+                        popup.show(logTable.getScene().getWindow());
+                    }
+                }
+            });
+
+            tableCell.addEventHandler(MouseEvent.MOUSE_EXITED, t -> {
+                if(p != null) p.hide();
+            });
+            return tableCell;
+        });
+
         time.setCellFactory(col -> new TableCell<LogRecord, LocalDateTime>() {
             @Override
             protected void updateItem(LocalDateTime item, boolean empty) {
@@ -129,6 +170,8 @@ public class LogTableController extends Thread{
                     setText(String.format(item.format(formatter)));
             }
         });
+//        ContextMenu contextMenu = new ContextMenu(new MenuItem("Open"), new MenuItem("close")) ;
+//        logTable.setContextMenu(contextMenu);
 
         // 1. Wrap the ObservableList in a FilteredList (initially display all data).
         filteredData = new FilteredList<>(masterData, p -> true);
@@ -427,5 +470,9 @@ public class LogTableController extends Thread{
 
     public Map<String, Filter> getFilters() {
         return filters;
+    }
+
+    public void setFilterController(FilterController filterController) {
+        this.filterController = filterController;
     }
 }
