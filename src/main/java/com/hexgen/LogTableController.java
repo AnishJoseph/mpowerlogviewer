@@ -9,7 +9,6 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Popup;
 
 import java.time.LocalDateTime;
@@ -147,41 +146,28 @@ public class LogTableController extends Thread{
 
         thread.setCellValueFactory(cellData -> cellData.getValue().threadProperty());
         thread.setCellFactory(col -> {
-            final TableCell tableCell = new TableCell<LogRecord, String>() {
+            final TableCell tableCell = new TableCellWithMenu(new MenuGenerator(){
                 @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    setText(item == null ? null : item);
-                }
-            };
-            final TableCell tableCell1 = new TableCell<LogRecord, Integer>() {
-                @Override
-                protected void updateItem(Integer item, boolean empty) {
-                    super.updateItem(item, empty);
-                    setText(item == null ? null : item.toString());
-                }
-            };
-            Menu filterMenu = new Menu("Filter");
-            MenuItem openItem = new MenuItem("FilterThreadId");
-            filterMenu.getItems().add(openItem);
-            MenuItem tailItem = new MenuItem("ThreadIdJobIdFilter");
-            filterMenu.getItems().add(tailItem);
+                public ContextMenu getMenu(LogRecord logRecord) {
+                    ContextMenu contextMenu = new ContextMenu();
 
-            ContextMenu contextMenu = new ContextMenu(filterMenu);
-            tableCell.setContextMenu(contextMenu);
+                    MenuItem openItem = new MenuItem("Filter Thread " + logRecord.getThread());
+                    contextMenu.getItems().add(openItem);
+                    openItem.setOnAction(t -> {
+                        filterController.addThreadFilter(logRecord.getThread());
+                    });
 
-            openItem.setOnAction(t -> {
-                String thread = (String) tableCell.getItem();
-                if(thread != null) {
-                    filterController.addThreadFilter(thread);
-                }
-            });
-            tailItem.setOnAction(t -> {
-                String thread = (String) tableCell.getItem();
-                Integer jobId = (Integer) tableCell1.getItem();
-                if(thread != null && jobId != null) {
-                    filterController.addThreadFilter(thread);
-                    filterController.addJobIdFilter(jobId.toString());
+                    if(logRecord.jobIdProperty()  != null) {
+                        MenuItem combination = new MenuItem("Filter thread " + logRecord.getThread() + " Job - " + logRecord.getJobId().toString());
+                        contextMenu.getItems().add(combination);
+                        combination.setOnAction(t -> {
+                            if(thread != null && jobId != null) {
+                                filterController.addThreadFilter(logRecord.getThread());
+                                filterController.addJobIdFilter(logRecord.getJobId().toString());
+                            }
+                        });
+                    }
+                    return contextMenu;
                 }
             });
             return tableCell;
@@ -535,7 +521,7 @@ public class LogTableController extends Thread{
 
 
 
-            /* Dont put anuthing below this line */
+            /* Dont put anything below this line */
             if(filterName.equals("globalSearch"))
                 filterForGlobalSearch((String) filter.getSearchSpec(), firstCheck);
             firstCheck = false;
