@@ -86,6 +86,7 @@ public class LogTableController extends Thread{
         filters.put("regex", new Filter(false, ""));
         filters.put("msg", new Filter(false, ""));
         filters.put("event", new Filter(false, ""));
+        filters.put("exceptions", new Filter(false, ""));
         filters.put("globalSearch", new Filter(true, ""));
 
 
@@ -398,6 +399,24 @@ public class LogTableController extends Thread{
             return false; // Does not match.
         });
     }
+    private void filterForExceptions(boolean firstCheck) {
+        filteredData.setPredicate(logRecord -> {
+
+            if(firstCheck) {
+                logRecord.setHidden(false);
+            } else {
+                if(logRecord.isHidden()) {
+                    return  false;
+                }
+            }
+            if (logRecord.isException()) {
+                logRecord.setHidden(true);
+                return true;
+            }
+            logRecord.setHidden(true);
+            return false; // Does not match.
+        });
+    }
 
     private void filterForUser(String searchStr, boolean firstCheck) {
         filteredData.setPredicate(logRecord -> {
@@ -518,6 +537,8 @@ public class LogTableController extends Thread{
                 filterForMsg((String) filter.getSearchSpec(), firstCheck);
             if(filterName.equals("className"))
                 filterForClassName((String) filter.getSearchSpec(), firstCheck);
+            if(filterName.equals("exceptions"))
+                filterForExceptions(firstCheck);
 
 
 

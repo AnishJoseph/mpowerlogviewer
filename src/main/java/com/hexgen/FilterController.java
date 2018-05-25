@@ -7,6 +7,7 @@ import javafx.animation.PauseTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -61,6 +62,8 @@ public class FilterController extends Thread{
     private CheckBox eventChkbox;
     @FXML
     private CheckBox timeChkbox;
+    @FXML
+    private CheckBox exceptionChkbox;
     @FXML
     private CheckBox timeBeforeChkbox;
     @FXML
@@ -336,5 +339,11 @@ public class FilterController extends Thread{
     public void addClassNameFilter(String thread) {
         classText.setText(thread);
         classChkbox.fire();
+    }
+
+    public void showExceptionsClicked(ActionEvent actionEvent) {
+        filters.get("exceptions").setEnabled(exceptionChkbox.isSelected());
+        filters.get("exceptions").setSearchSpec("hello");
+        logTableController.filter();
     }
 }

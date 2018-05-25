@@ -28,6 +28,7 @@ public class LogRecord {
     private String timeFormatted = "";
     private boolean hidden = false;
     private String  addlInfo;
+    private boolean exception = false;
 
 
     public LogRecord(Long id, String user, String company, Long jobId, Long xActionId, String event, LocalDateTime time, String thread, String level, String className, Long line, String msg) {
@@ -216,5 +217,13 @@ public class LogRecord {
 
     public void setAddlInfo(String addlInfo) {
         this.addlInfo = addlInfo;
+    }
+
+    public boolean isException() {
+        return exception;
+    }
+
+    public void setException(boolean exception) {
+        this.exception = exception;
     }
 }

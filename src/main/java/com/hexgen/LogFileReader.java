@@ -16,6 +16,7 @@ public class LogFileReader extends Thread {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yy HH:mm:ss.SSS");
     private static final Pattern P1ThreadPattern  = Pattern.compile("\\s*Camel\\s*\\(.*?\\)\\s*thread\\s*#(\\d+)\\s*-\\s*JmsConsumer\\[(.*?)\\]");
     private static final Pattern P0ThreadPattern  = Pattern.compile("\\s*http-[n|b]io-\\d+-.*?-(\\d*)");
+    private static final Pattern ExceptionPattern  = Pattern.compile("P[0|1]-\\d*\\.\\s*-\\s*Exception is.*");
     private ObservableList<LogRecord> masterData = null;
     private boolean shutdown = false;
     private String logFilename;
@@ -71,6 +72,10 @@ public class LogFileReader extends Thread {
                             addlInfo = new StringBuffer();
                         }
                         logRecord = new LogRecord(recordNumber, matcher.group(1).trim(),matcher.group(2).trim(),jobId,xActionId,matcher.group(5).trim(),localDateTime,threadName,matcher.group(8).trim(),matcher.group(9).trim(),lineNumber,matcher.group(11).trim());
+                        Matcher exceptionMatcher = ExceptionPattern.matcher(matcher.group(11));
+                        if(exceptionMatcher.matches()) {
+                            logRecord.setException(true);
+                        }
                         masterData.add(logRecord);
                     } else {
                         addlInfo.append(line);
