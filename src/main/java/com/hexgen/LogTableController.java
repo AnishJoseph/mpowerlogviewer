@@ -81,6 +81,7 @@ public class LogTableController extends Thread{
         filters.put("xActionId", new Filter(false, ""));
         filters.put("level", new Filter(false, ""));
         filters.put("company", new Filter(false, ""));
+        filters.put("className", new Filter(false, ""));
         filters.put("user", new Filter(false, ""));
         filters.put("threadId", new Filter(false, ""));
         filters.put("regex", new Filter(false, ""));
@@ -96,8 +97,6 @@ public class LogTableController extends Thread{
         level.setCellValueFactory(cellData -> cellData.getValue().levelProperty());
         user.setCellValueFactory(cellData -> cellData.getValue().userProperty());
         company.setCellValueFactory(cellData -> cellData.getValue().companyProperty());
-        className.setCellValueFactory(cellData -> cellData.getValue().classNameProperty());
-        thread.setCellValueFactory(cellData -> cellData.getValue().threadProperty());
         rowNum.setCellValueFactory(cellData -> cellData.getValue().idProperty());
         xActionId.setCellValueFactory(cellData -> cellData.getValue().xActionIdProperty());
         line.setCellValueFactory(cellData -> cellData.getValue().lineProperty());
@@ -125,9 +124,72 @@ public class LogTableController extends Thread{
             return tableCell;
         });
 
+        className.setCellValueFactory(cellData -> cellData.getValue().classNameProperty());
+        className.setCellFactory(col -> {
+            final TableCell tableCell = new TableCell<LogRecord,String>(){
+                @Override
+                protected void  updateItem(String item, boolean empty){
+                    super.updateItem(item,empty);
+                    setText(item == null ? null : item);
+                }
+            };
+            MenuItem filterMenuItem = new MenuItem("Filter");
+            ContextMenu contextMenu = new ContextMenu(filterMenuItem);
+            tableCell.setContextMenu(contextMenu);
+            filterMenuItem.setOnAction(t -> {
+                String className = (String) tableCell.getItem();
+                if(className != null ) {
+                    filterController.addClassNameFilter(className);
+                }
+            });
+            return tableCell;
+        });
+
+        thread.setCellValueFactory(cellData -> cellData.getValue().threadProperty());
+        thread.setCellFactory(col -> {
+            final TableCell tableCell = new TableCell<LogRecord, String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(item == null ? null : item);
+                }
+            };
+            final TableCell tableCell1 = new TableCell<LogRecord, Integer>() {
+                @Override
+                protected void updateItem(Integer item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(item == null ? null : item.toString());
+                }
+            };
+            Menu filterMenu = new Menu("Filter");
+            MenuItem openItem = new MenuItem("FilterThreadId");
+            filterMenu.getItems().add(openItem);
+            MenuItem tailItem = new MenuItem("ThreadIdJobIdFilter");
+            filterMenu.getItems().add(tailItem);
+
+            ContextMenu contextMenu = new ContextMenu(filterMenu);
+            tableCell.setContextMenu(contextMenu);
+
+            openItem.setOnAction(t -> {
+                String thread = (String) tableCell.getItem();
+                if(thread != null) {
+                    filterController.addThreadFilter(thread);
+                }
+            });
+            tailItem.setOnAction(t -> {
+                String thread = (String) tableCell.getItem();
+                Integer jobId = (Integer) tableCell1.getItem();
+                if(thread != null && jobId != null) {
+                    filterController.addThreadFilter(thread);
+                    filterController.addJobIdFilter(jobId.toString());
+                }
+            });
+            return tableCell;
+        });
+
         msg.setCellValueFactory(cellData -> cellData.getValue().msgProperty());
         msg.setCellFactory(col -> {
-            Popup p = null;
+//            Popup p = null;
             TableCell tableCell = new TableCell<LogRecord, String>() {
                 @Override
                 protected void updateItem(String item, boolean empty) {
@@ -136,7 +198,10 @@ public class LogTableController extends Thread{
 
                 }
             };
-            tableCell.addEventHandler(MouseEvent.MOUSE_ENTERED, t -> {
+            MenuItem filterMenuItem = new MenuItem("Detail Information");
+            ContextMenu contextMenu = new ContextMenu(filterMenuItem);
+            tableCell.setContextMenu(contextMenu);
+            filterMenuItem.setOnAction(t -> {
                 if(tableCell.getParent() instanceof  TableRow ) {
                     LogRecord logRecord = (LogRecord) ((TableRow) tableCell.getParent()).getItem();
                     if (logRecord != null && logRecord.getAddlInfo() != null) {
@@ -154,9 +219,9 @@ public class LogTableController extends Thread{
                 }
             });
 
-            tableCell.addEventHandler(MouseEvent.MOUSE_EXITED, t -> {
-                if(p != null) p.hide();
-            });
+//            tableCell.addEventHandler(MouseEvent.MOUSE_EXITED, t -> {
+//                if(p != null) p.hide();
+//            });
             return tableCell;
         });
 
@@ -327,10 +392,10 @@ public class LogTableController extends Thread{
         });
 
     }
-    private void filterForUser(String searchStr, boolean firstCheck) {
+    private void filterForClassName(String searchStr, boolean firstCheck) {
         filteredData.setPredicate(logRecord -> {
 
-            String upperCaseFilter = searchStr.toUpperCase();
+            String lowerCaseFilter = searchStr.toLowerCase();
             if(firstCheck) {
                 logRecord.setHidden(false);
             } else {
@@ -338,7 +403,27 @@ public class LogTableController extends Thread{
                     return  false;
                 }
             }
-            if (logRecord.userProperty() != null && logRecord.getUser().contains(upperCaseFilter)) {
+            if (logRecord.classNameProperty() != null && logRecord.getClassName().toLowerCase().contains(lowerCaseFilter)) {
+                logRecord.setHidden(false);
+                return true;
+            }
+            logRecord.setHidden(true);
+            return false; // Does not match.
+        });
+    }
+
+    private void filterForUser(String searchStr, boolean firstCheck) {
+        filteredData.setPredicate(logRecord -> {
+
+            String lowerCaseFilter = searchStr.toLowerCase();
+            if(firstCheck) {
+                logRecord.setHidden(false);
+            } else {
+                if(logRecord.isHidden()) {
+                    return  false;
+                }
+            }
+            if (logRecord.userProperty() != null && logRecord.getUser().toLowerCase().contains(lowerCaseFilter)) {
                 logRecord.setHidden(false);
                 return true;
             }
@@ -350,7 +435,7 @@ public class LogTableController extends Thread{
     private void filterForMsg(String searchStr, boolean firstCheck) {
         filteredData.setPredicate(logRecord -> {
 
-            String upperCaseFilter = searchStr.toUpperCase();
+            String lowerCaseFilter = searchStr.toLowerCase();
             if(firstCheck) {
                 logRecord.setHidden(false);
             } else {
@@ -358,7 +443,7 @@ public class LogTableController extends Thread{
                     return  false;
                 }
             }
-            if (logRecord.msgProperty() != null && logRecord.getMsg().contains(upperCaseFilter)) {
+            if (logRecord.msgProperty() != null && logRecord.getMsg().toLowerCase().contains(lowerCaseFilter)) {
                 logRecord.setHidden(false);
                 return true;
             }
@@ -370,7 +455,7 @@ public class LogTableController extends Thread{
     private void filterForEvent(String searchStr, boolean firstCheck) {
         filteredData.setPredicate(logRecord -> {
 
-            String upperCaseFilter = searchStr.toUpperCase();
+            String lowerCaseFilter = searchStr.toLowerCase();
             if(firstCheck) {
                 logRecord.setHidden(false);
             } else {
@@ -378,7 +463,7 @@ public class LogTableController extends Thread{
                     return  false;
                 }
             }
-            if (logRecord.eventProperty() != null && logRecord.getEvent().contains(upperCaseFilter)) {
+            if (logRecord.eventProperty() != null && logRecord.getEvent().toLowerCase().contains(lowerCaseFilter)) {
                 logRecord.setHidden(false);
                 return true;
             }
@@ -444,6 +529,8 @@ public class LogTableController extends Thread{
                 filterForUser((String) filter.getSearchSpec(), firstCheck);
             if(filterName.equals("msg"))
                 filterForMsg((String) filter.getSearchSpec(), firstCheck);
+            if(filterName.equals("className"))
+                filterForClassName((String) filter.getSearchSpec(), firstCheck);
 
 
 

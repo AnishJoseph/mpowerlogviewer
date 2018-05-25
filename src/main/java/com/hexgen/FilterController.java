@@ -44,6 +44,10 @@ public class FilterController extends Thread{
     @FXML
     private CheckBox companyChkbox;
     @FXML
+    private TextField classText;
+    @FXML
+    private CheckBox classChkbox;
+    @FXML
     private TextField userText;
     @FXML
     private CheckBox userChkbox;
@@ -109,6 +113,13 @@ public class FilterController extends Thread{
         companyText.textProperty().addListener((observable, oldValue, newValue) -> {
             pause.setOnFinished(event -> {
                 filters.get("company").setSearchSpec(companyText.getText());
+                logTableController.filter();
+            });
+            pause.playFromStart();
+        });
+        classText.textProperty().addListener((observable, oldValue, newValue) -> {
+            pause.setOnFinished(event -> {
+                filters.get("className").setSearchSpec(classText.getText());
                 logTableController.filter();
             });
             pause.playFromStart();
@@ -222,6 +233,22 @@ public class FilterController extends Thread{
             logTableController.filter();
         }
     }
+    public void classChkBoxClicked(Event e){
+        classText.setVisible(classChkbox.isSelected());
+        if(classChkbox.isSelected()){
+            filters.get("className").setEnabled(true);
+            String classTex = classText.getText();
+            if(!classTex.isEmpty()) filters.get("className").setSearchSpec(classTex);
+            if(classTex != null && !classTex.isEmpty()) {
+                logTableController.filter();
+            }
+        } else {
+            classText.setVisible(false);
+            filters.get("className").setSearchSpec(null);
+            logTableController.filter();
+        }
+    }
+
     public void userChkBoxClicked(Event e){
         userText.setVisible(userChkbox.isSelected());
         if(userChkbox.isSelected()){
@@ -301,5 +328,13 @@ public class FilterController extends Thread{
     public void addJobIdFilter(String jobId) {
         jobIdText.setText(jobId);
         jobIdChkbox.fire();
+    }
+    public void addThreadFilter(String thread) {
+        tidText.setText(thread);
+        tidChkbox.fire();
+    }
+    public void addClassNameFilter(String thread) {
+        classText.setText(thread);
+        classChkbox.fire();
     }
 }
