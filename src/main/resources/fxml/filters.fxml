@@ -4,37 +4,34 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.CheckComboBox?>
 <?import tornadofx.control.DateTimePicker?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.hexgen.FilterController" >
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.hexgen.FilterController" spacing="3">
     <Label text="Filters" fx:id="title"></Label>
     <CheckBox fx:id="exceptionChkbox" text="Show Exceptions" onAction="#showExceptionsClicked"/>
+
     <CheckBox fx:id="tidChkbox" text="Thread ID Filter" onAction="#tidChkBoxClicked"/>
     <TextField fx:id="tidText" visible="false"/>
+
     <CheckBox fx:id="jobIdChkbox" text="Job ID Filter" onAction="#jobIdChkBoxClicked"/>
     <TextField fx:id="jobIdText" visible="false"/>
+
     <CheckBox fx:id="levelChkbox" text="Level Filter" onAction="#levelChkBoxClicked"/>
-    <CheckComboBox fx:id="levelSelector" visible="false">
-<!--
-        <items>
-            <FXCollections fx:factory="observableArrayList">
-                <String fx:value="ERROR" />
-                <String fx:value="WARN" />
-                <String fx:value="INFO" />
-                <String fx:value="DEBUG" />
-                <String fx:value="TRACE" />
-            </FXCollections>
-        </items>
--->
-    </CheckComboBox>
+    <CheckComboBox fx:id="levelSelector" visible="false"/>
+
     <CheckBox fx:id="companyChkbox" text="Company Filter" onAction="#companyChkBoxClicked"/>
     <TextField fx:id="companyText" visible="false"/>
+
     <CheckBox fx:id="classChkbox" text="Class Filter" onAction="#classChkBoxClicked"/>
     <TextField fx:id="classText" visible="false"/>
+
     <CheckBox fx:id="userChkbox" text="User Filter" onAction="#userChkBoxClicked"/>
     <TextField fx:id="userText" visible="false"/>
+
     <CheckBox fx:id="msgChkbox" text="Msg Filter" onAction="#msgChkBoxClicked"/>
     <TextField fx:id="msgText" visible="false"/>
+
     <CheckBox fx:id="eventChkbox" text="Event Filter" onAction="#eventChkBoxClicked"/>
     <TextField fx:id="eventText" visible="false"/>
+
     <CheckBox fx:id="timeChkbox" text="Time Filter" onAction="#timeChkBoxClicked"/>
     <CheckBox fx:id="timeAfterChkbox" text="Show After" visible="false" selected="true"/>
     <DateTimePicker fx:id="timeAfterText" visible="false"/>
