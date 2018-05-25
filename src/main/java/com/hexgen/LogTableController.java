@@ -98,51 +98,51 @@ public class LogTableController extends Thread{
         company.setCellValueFactory(cellData -> cellData.getValue().companyProperty());
         rowNum.setCellValueFactory(cellData -> cellData.getValue().idProperty());
         xActionId.setCellValueFactory(cellData -> cellData.getValue().xActionIdProperty());
+        xActionId.setCellFactory(col -> {
+            final TableCell tableCell = new TableCellWithMenu(new MenuGenerator(){
+                @Override
+                public ContextMenu getMenu(LogRecord logRecord) {
+                    ContextMenu contextMenu = new ContextMenu();
+                    if(logRecord == null || logRecord.xActionIdProperty() == null) return  null;
+
+                    MenuItem openItem = new MenuItem("Filter on XID and JobId");
+                    contextMenu.getItems().add(openItem);
+                    openItem.setOnAction(t -> {
+                        filterController.addJobIdFilter(logRecord.getJobId().toString());
+//                        filterController.add(logRecord.getJobId());
+                        //FIXME add XID filter
+                    });
+                    return contextMenu;
+                }
+            });
+            return tableCell;
+        });
+
+
         line.setCellValueFactory(cellData -> cellData.getValue().lineProperty());
         event.setCellValueFactory(cellData -> cellData.getValue().eventProperty());
         time.setCellValueFactory(cellData -> cellData.getValue().timeProperty());
         jobId.setCellValueFactory(cellData -> cellData.getValue().jobIdProperty());
         jobId.setCellFactory(col -> {
-            final TableCell tableCell = new TableCell<LogRecord, Integer>() {
+            final TableCell tableCell = new TableCellWithMenu(new MenuGenerator(){
                 @Override
-                protected void updateItem(Integer item, boolean empty) {
-                    super.updateItem(item, empty);
-                    setText(item == null ? null : item.toString());
-                }
-            };
-            MenuItem filterMenuItem = new MenuItem("Filter");
-            ContextMenu contextMenu = new ContextMenu(filterMenuItem);
-            tableCell.setContextMenu(contextMenu);
-            filterMenuItem.setOnAction(t -> {
-                Integer jobId = (Integer) tableCell.getItem();
-                if(jobId != null ) {
-                    filterController.addJobIdFilter(jobId.toString());
+                public ContextMenu getMenu(LogRecord logRecord) {
+                    ContextMenu contextMenu = new ContextMenu();
+                    if(logRecord == null || logRecord.jobIdProperty() == null) return  null;
+
+                    MenuItem openItem = new MenuItem("Filter on Job ID  " + logRecord.getJobId());
+                    contextMenu.getItems().add(openItem);
+                    openItem.setOnAction(t -> {
+                        filterController.addJobIdFilter(logRecord.getJobId().toString());
+                    });
+
+                    return contextMenu;
                 }
             });
-
             return tableCell;
         });
 
         className.setCellValueFactory(cellData -> cellData.getValue().classNameProperty());
-        className.setCellFactory(col -> {
-            final TableCell tableCell = new TableCell<LogRecord,String>(){
-                @Override
-                protected void  updateItem(String item, boolean empty){
-                    super.updateItem(item,empty);
-                    setText(item == null ? null : item);
-                }
-            };
-            MenuItem filterMenuItem = new MenuItem("Filter");
-            ContextMenu contextMenu = new ContextMenu(filterMenuItem);
-            tableCell.setContextMenu(contextMenu);
-            filterMenuItem.setOnAction(t -> {
-                String className = (String) tableCell.getItem();
-                if(className != null ) {
-                    filterController.addClassNameFilter(className);
-                }
-            });
-            return tableCell;
-        });
 
         thread.setCellValueFactory(cellData -> cellData.getValue().threadProperty());
         thread.setCellFactory(col -> {
@@ -150,6 +150,7 @@ public class LogTableController extends Thread{
                 @Override
                 public ContextMenu getMenu(LogRecord logRecord) {
                     ContextMenu contextMenu = new ContextMenu();
+                    if(logRecord == null || logRecord.threadProperty() == null) return  null;
 
                     MenuItem openItem = new MenuItem("Filter Thread " + logRecord.getThread());
                     contextMenu.getItems().add(openItem);

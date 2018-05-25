@@ -16,8 +16,7 @@ public class TableCellWithMenu<S,T> extends TableCell {
     @Override
     protected void updateItem(Object item, boolean empty) {
         super.updateItem(item, empty);
-        String itemString = ((String)item);
-        setText(itemString == null ? null : itemString);
+        setText(item == null ? null : item.toString());
 
         if(item == null) {
             /* if the cell has no valid data just return - we don't need a context menu */
@@ -26,7 +25,7 @@ public class TableCellWithMenu<S,T> extends TableCell {
         this.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             LogRecord logRecord = (LogRecord) ((TableRow) this.getParent()).getItem();
             ContextMenu menu = menuGenerator.getMenu(logRecord);
-            menu.show(this.getParent(), event.getScreenX(), event.getScreenY());
+            if(menu != null) menu.show(this.getParent(), event.getScreenX(), event.getScreenY());
         });
 
     }
