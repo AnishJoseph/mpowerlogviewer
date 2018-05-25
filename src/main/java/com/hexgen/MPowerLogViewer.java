@@ -14,8 +14,12 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -92,6 +96,7 @@ public class MPowerLogViewer extends Application {
 
             BorderPane borderPane = new BorderPane();
             borderPane.setLeft(filterVBox);
+            filterVBox.setPadding(new Insets(10, 5, 0, 10));
             borderPane.setCenter(logRecordsView);
             tab.setContent(borderPane);
             tabPane.getTabs().add(tab);

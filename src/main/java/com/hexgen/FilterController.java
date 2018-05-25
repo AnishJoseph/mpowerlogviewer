@@ -10,6 +10,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.util.Duration;
 import org.controlsfx.control.CheckComboBox;
@@ -27,6 +28,8 @@ import java.util.Map;
  */
 public class FilterController extends Thread{
 
+    @FXML
+    private Label title;
     @FXML
     private TextField tidText;
     @FXML
@@ -90,6 +93,8 @@ public class FilterController extends Thread{
         strings.add("DEBUG");
         strings.add("TRACE");
         levelSelector.getItems().addAll(strings);
+        title.setPadding(new Insets(0,0,25,0));
+        exceptionChkbox.setPadding(new Insets(0,0,25,0));
 
         PauseTransition pause = new PauseTransition(Duration.seconds(1));
         tidText.textProperty().addListener((observable, oldValue, newValue) -> {
