@@ -5,7 +5,7 @@
 <?import org.controlsfx.control.CheckComboBox?>
 <?import tornadofx.control.DateTimePicker?>
 <VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.hexgen.FilterController" >
-    <Label text="Filters" fx:id="title" style="-fx-font-size: 16px;-fx-font: bold;-fx-alignment: center"></Label>
+    <Label text="Filters" fx:id="title"></Label>
     <CheckBox fx:id="exceptionChkbox" text="Show Exceptions" onAction="#showExceptionsClicked"/>
     <CheckBox fx:id="tidChkbox" text="Thread ID Filter" onAction="#tidChkBoxClicked"/>
     <TextField fx:id="tidText" visible="false"/>
