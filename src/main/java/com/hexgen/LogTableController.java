@@ -9,7 +9,6 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.stage.Popup;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -177,36 +176,7 @@ public class LogTableController extends Thread{
 
         msg.setCellValueFactory(cellData -> cellData.getValue().msgProperty());
         msg.setCellFactory(col -> {
-            TableCell tableCell = new TableCell<LogRecord, String>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    setText(item);
-
-                }
-            };
-            MenuItem filterMenuItem = new MenuItem("Detail Information");
-            ContextMenu contextMenu = new ContextMenu(filterMenuItem);
-            tableCell.setContextMenu(contextMenu);
-            filterMenuItem.setOnAction(t -> {
-                if(tableCell.getParent() instanceof  TableRow ) {
-                    LogRecord logRecord = (LogRecord) ((TableRow) tableCell.getParent()).getItem();
-                    if (logRecord != null && logRecord.getAddlInfo() != null) {
-                        TextArea textArea = new TextArea();
-                        textArea.setEditable(false);
-                        textArea.setText(logRecord.getAddlInfo());
-                        textArea.setPrefWidth(1000);
-                        textArea.setPrefHeight(600);
-                        Popup popup = new Popup();
-                        popup.centerOnScreen();
-                        popup.setAutoHide(true);
-                        popup.getContent().add(textArea);
-                        popup.show(logTable.getScene().getWindow());
-                    }
-                }
-            });
-
-            return tableCell;
+            return new MsgTableCell();
         });
 
         time.setCellFactory(col -> new TableCell<LogRecord, LocalDateTime>() {
