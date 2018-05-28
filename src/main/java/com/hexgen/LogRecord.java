@@ -87,6 +87,14 @@ public class LogRecord {
         this.company.set(company);
     }
 
+    public String getXidAsString(){
+        if(xActionId == null) return "";
+        return xActionId.get().toString();
+    }
+    public String getJobIdAsString(){
+        if(jobId == null) return "";
+        return jobId.get().toString();
+    }
     public Integer getJobId() {
         return jobId.get();
     }

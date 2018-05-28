@@ -25,7 +25,16 @@ public class MsgTableCell<S,T> extends TableCell {
             if (logRecord != null) {
                 TextArea textArea = new TextArea();
                 textArea.setEditable(false);
-                sb.append(logRecord.getMsg() + "\n");
+                sb.append("Time \t\t: " + logRecord.getTimeFormatted() + "\n");
+                sb.append("Thread ID \t: " + logRecord.getThread() + "\n");
+                sb.append("Job ID \t\t: " + logRecord.getJobIdAsString() + "\n");
+                sb.append("XID ID \t\t: " + logRecord.getXidAsString() + "\n");
+                sb.append("User \t\t: " + logRecord.getUser() + "\n");
+                sb.append("Level \t\t: " + logRecord.getLevel() + "\n");
+                sb.append("Event \t\t: " + logRecord.getEvent() + "\n");
+                sb.append("Class \t\t: " + logRecord.getClassName() + "\n");
+                sb.append("Line \t\t\t: " + logRecord.getLine() + "\n");
+                sb.append("Message \t\t: " + logRecord.getMsg() + "\n");
                 if(logRecord.getAddlInfo() != null) {
                     sb.append(logRecord.getAddlInfo());
                 }
