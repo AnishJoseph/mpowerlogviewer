@@ -131,7 +131,7 @@ public class LogTableController extends Thread{
                     ContextMenu contextMenu = new ContextMenu();
                     if(logRecord == null || logRecord.jobIdProperty() == null) return  null;
 
-                    MenuItem openItem = new MenuItem("Filter on Job ID  " + logRecord.getJobId());
+                    MenuItem openItem = new MenuItem("Filter on JobID");
                     contextMenu.getItems().add(openItem);
                     openItem.setOnAction(t -> {
                         filterController.addJobIdFilter(logRecord.getJobId().toString());
@@ -153,14 +153,14 @@ public class LogTableController extends Thread{
                     ContextMenu contextMenu = new ContextMenu();
                     if(logRecord == null || logRecord.threadProperty() == null) return  null;
 
-                    MenuItem openItem = new MenuItem("Filter Thread " + logRecord.getThread());
+                    MenuItem openItem = new MenuItem("Filter on ThreadID");
                     contextMenu.getItems().add(openItem);
                     openItem.setOnAction(t -> {
                         filterController.addThreadFilter(logRecord.getThread());
                     });
 
                     if(logRecord.jobIdProperty()  != null) {
-                        MenuItem combination = new MenuItem("Filter thread " + logRecord.getThread() + " Job - " + logRecord.getJobId().toString());
+                        MenuItem combination = new MenuItem("Filter on ThreadID & JobID");
                         contextMenu.getItems().add(combination);
                         combination.setOnAction(t -> {
                             if(thread != null && jobId != null) {
@@ -177,7 +177,6 @@ public class LogTableController extends Thread{
 
         msg.setCellValueFactory(cellData -> cellData.getValue().msgProperty());
         msg.setCellFactory(col -> {
-//            Popup p = null;
             TableCell tableCell = new TableCell<LogRecord, String>() {
                 @Override
                 protected void updateItem(String item, boolean empty) {
@@ -207,9 +206,6 @@ public class LogTableController extends Thread{
                 }
             });
 
-//            tableCell.addEventHandler(MouseEvent.MOUSE_EXITED, t -> {
-//                if(p != null) p.hide();
-//            });
             return tableCell;
         });
 
@@ -223,8 +219,6 @@ public class LogTableController extends Thread{
                     setText(String.format(item.format(formatter)));
             }
         });
-//        ContextMenu contextMenu = new ContextMenu(new MenuItem("Open"), new MenuItem("close")) ;
-//        logTable.setContextMenu(contextMenu);
 
         // 1. Wrap the ObservableList in a FilteredList (initially display all data).
         filteredData = new FilteredList<>(masterData, p -> true);
