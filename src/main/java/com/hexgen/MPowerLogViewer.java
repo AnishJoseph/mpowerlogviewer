@@ -20,6 +20,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -84,6 +85,10 @@ public class MPowerLogViewer extends Application {
             try {
                 FXMLLoader filterLoader = new FXMLLoader(MPowerLogViewer.class.getResource("/fxml/filters.fxml"));
                 filterVBox = filterLoader.load();
+                BackgroundImage myBI= new BackgroundImage(new Image("images/background.jpg",32,32,false,true),
+                        BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT,
+                        BackgroundSize.DEFAULT);
+                filterVBox.setBackground(new Background(myBI));
                 filterController = filterLoader.getController();
                 filterController.setLogTableController(logTableController);
                 filterController.setFilters(logTableController.getFilters());
@@ -96,7 +101,7 @@ public class MPowerLogViewer extends Application {
 
             BorderPane borderPane = new BorderPane();
             borderPane.setLeft(filterVBox);
-            filterVBox.setPadding(new Insets(10, 5, 0, 10));
+            filterVBox.setPadding(new Insets(10, 5, 0, 15));
             borderPane.setCenter(logRecordsView);
             tab.setContent(borderPane);
             tabPane.getTabs().add(tab);
