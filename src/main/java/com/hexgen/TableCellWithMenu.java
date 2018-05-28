@@ -8,6 +8,7 @@ import javafx.scene.input.MouseEvent;
  */
 public class TableCellWithMenu<S,T> extends TableCell {
     private MenuGenerator menuGenerator;
+    private static ContextMenu oldMenu;
     public TableCellWithMenu(MenuGenerator menuGenerator){
         super();
         this.menuGenerator = menuGenerator;
@@ -24,7 +25,11 @@ public class TableCellWithMenu<S,T> extends TableCell {
         }
         this.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             LogRecord logRecord = (LogRecord) ((TableRow) this.getParent()).getItem();
+            if(oldMenu != null){
+                oldMenu.hide();
+            }
             ContextMenu menu = menuGenerator.getMenu(logRecord);
+            oldMenu = menu;
             if(menu != null) menu.show(this.getParent(), event.getScreenX(), event.getScreenY());
         });
 
