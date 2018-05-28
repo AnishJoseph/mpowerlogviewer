@@ -25,6 +25,7 @@ public class MsgTableCell<S,T> extends TableCell {
             if (logRecord != null) {
                 TextArea textArea = new TextArea();
                 textArea.setEditable(false);
+                textArea.setWrapText(true);
                 sb.append("Time \t\t: " + logRecord.getTimeFormatted() + "\n");
                 sb.append("Thread ID \t: " + logRecord.getThread() + "\n");
                 sb.append("Job ID \t\t: " + logRecord.getJobIdAsString() + "\n");
@@ -41,6 +42,7 @@ public class MsgTableCell<S,T> extends TableCell {
                 textArea.setText(sb.toString());
                 textArea.setPrefWidth(1000);
                 textArea.setPrefHeight(600);
+                textArea.setFont(this.getFont());
                 Popup popup = new Popup();
                 popup.centerOnScreen();
                 popup.setAutoHide(true);
