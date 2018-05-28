@@ -109,9 +109,9 @@ public class LogTableController extends Thread{
                     MenuItem openItem = new MenuItem("Filter on XID and JobId");
                     contextMenu.getItems().add(openItem);
                     openItem.setOnAction(t -> {
+                        filters.get("xActionId").setEnabled(true);
+                        filters.get("xActionId").setSearchSpec(logRecord.getxActionId().toString());
                         filterController.addJobIdFilter(logRecord.getJobId().toString());
-//                        filterController.add(logRecord.getJobId());
-                        //FIXME add XID filter
                     });
                     return contextMenu;
                 }
@@ -341,6 +341,25 @@ public class LogTableController extends Thread{
         });
 
     }
+    private void filterForXid(String searchStr, boolean firstCheck) {
+        filteredData.setPredicate(logRecord -> {
+
+            if(firstCheck) {
+                logRecord.setHidden(false);
+            } else {
+                if(logRecord.isHidden()) {
+                    return  false;
+                }
+            }
+            if (logRecord.xActionIdProperty() != null && logRecord.getxActionId().toString().equals(searchStr)) {
+                logRecord.setHidden(false);
+                return true;
+            }
+            logRecord.setHidden(true);
+            return false; // Does not match.
+        });
+
+    }
     private void filterForLevel(ObservableList<String > chosenLevels, boolean firstCheck) {
         filteredData.setPredicate(logRecord -> {
 
@@ -525,6 +544,8 @@ public class LogTableController extends Thread{
                 filterForThreadId((String) filter.getSearchSpec(), firstCheck);
             if(filterName.equals("jobId"))
                 filterForJobId((String) filter.getSearchSpec(), firstCheck);
+            if(filterName.equals("xActionId"))
+                filterForXid((String) filter.getSearchSpec(), firstCheck);
             if(filterName.equals("level"))
                 filterForLevel((ObservableList<String>) filter.getSearchSpec(), firstCheck);
             if(filterName.equals("company"))

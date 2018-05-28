@@ -208,6 +208,7 @@ public class FilterController extends Thread{
         } else {
             jobIdText.setVisible(false);
             filters.get("jobId").setSearchSpec(null);
+            filters.get("xActionId").setEnabled(false);
             logTableController.filter();
         }
     }
