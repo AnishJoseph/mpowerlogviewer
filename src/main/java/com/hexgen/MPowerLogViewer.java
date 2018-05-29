@@ -65,8 +65,10 @@ public class MPowerLogViewer extends Application {
     private void open(String logFilename, boolean tail){
         try {
             ObservableList<LogRecord> masterData = FXCollections.observableArrayList();
+            Map<Integer, Boolean> incompleteJobs = new HashMap<>();
 
-            LogFileReader logFileReader = new LogFileReader(masterData, logFilename, tail);
+
+            LogFileReader logFileReader = new LogFileReader(masterData, logFilename, tail, incompleteJobs);
 
             FXMLLoader logTableLoader = new FXMLLoader(MPowerLogViewer.class.getResource("/fxml/LogTable.fxml"));
             LogTableController logTableController = new LogTableController(masterData, tail);
@@ -92,6 +94,7 @@ public class MPowerLogViewer extends Application {
                 filterController = filterLoader.getController();
                 filterController.setLogTableController(logTableController);
                 filterController.setFilters(logTableController.getFilters());
+                filterController.setIncompleteJobs(incompleteJobs);
             } catch (IOException e) {
                 e.printStackTrace();
                 System.exit(4);

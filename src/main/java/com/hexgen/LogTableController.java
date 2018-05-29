@@ -13,6 +13,7 @@ import javafx.scene.control.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -73,6 +74,7 @@ public class LogTableController extends Thread{
      */
     @FXML
     private void initialize() {
+        filters.put("incompleteJobs", new Filter(false, ""));
         filters.put("timeAfter", new Filter(false, ""));
         filters.put("timeBefore", new Filter(false, ""));
         filters.put("jobId", new Filter(false, ""));
@@ -498,6 +500,26 @@ public class LogTableController extends Thread{
         });
     }
 
+    private void filterForIncompleteJobs(List<Integer> searchSpec, boolean firstCheck) {
+        filteredData.setPredicate(logRecord -> {
+
+            if(firstCheck) {
+                logRecord.setHidden(false);
+            } else {
+                if(logRecord.isHidden()) {
+                    return  false;
+                }
+            }
+            if (logRecord.jobIdProperty() != null && searchSpec.contains(logRecord.getJobId())) {
+                logRecord.setHidden(false);
+                return true;
+            }
+            logRecord.setHidden(true);
+            return false; // Does not match.
+        });
+
+    }
+
     public void filter(){
         boolean firstCheck = true;
         for (String filterName : filters.keySet()) {
@@ -524,6 +546,8 @@ public class LogTableController extends Thread{
                 filterForClassName((String) filter.getSearchSpec(), firstCheck);
             if(filterName.equals("exceptions"))
                 filterForExceptions(firstCheck);
+            if(filterName.equals("incompleteJobs"))
+                filterForIncompleteJobs((List<Integer>) filter.getSearchSpec(), firstCheck);
 
 
 

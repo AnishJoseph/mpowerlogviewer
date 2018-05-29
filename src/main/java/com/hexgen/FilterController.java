@@ -18,7 +18,9 @@ import tornadofx.control.DateTimePicker;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -38,6 +40,8 @@ public class FilterController extends Thread{
     private TextField jobIdText;
     @FXML
     private CheckBox jobIdChkbox;
+    @FXML
+    private CheckBox incompleteJobsChkbox;
     @FXML
     private CheckComboBox<String> levelSelector;
 
@@ -82,6 +86,7 @@ public class FilterController extends Thread{
     private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     private Map<String, Filter> filters;
+    private Map<Integer, Boolean> incompleteJobs = null;
 
     @FXML
     private void initialize()
@@ -350,6 +355,19 @@ public class FilterController extends Thread{
     public void showExceptionsClicked(ActionEvent actionEvent) {
         filters.get("exceptions").setEnabled(exceptionChkbox.isSelected());
         filters.get("exceptions").setSearchSpec("hello");
+        logTableController.filter();
+    }
+
+    public void setIncompleteJobs(Map<Integer, Boolean> incompleteJobs) {
+        this.incompleteJobs = incompleteJobs;
+    }
+
+    public void incompleteJobsChkBoxClicked(ActionEvent actionEvent) {
+        filters.get("incompleteJobs").setEnabled(incompleteJobsChkbox.isSelected());
+        if(incompleteJobsChkbox.isSelected()) {
+            List<Integer> jobids = incompleteJobs.entrySet().stream().filter(Map.Entry::getValue).map(Map.Entry::getKey).collect(Collectors.toList());
+            filters.get("incompleteJobs").setSearchSpec(jobids);
+        }
         logTableController.filter();
     }
 }

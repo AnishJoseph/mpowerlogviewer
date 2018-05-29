@@ -31,7 +31,7 @@ public class LogRecord {
     private boolean exception = false;
 
 
-    public LogRecord(Long id, String user, String company, Long jobId, Long xActionId, String event, LocalDateTime time, String thread, String level, String className, Long line, String msg) {
+    public LogRecord(Integer id, String user, String company, Integer jobId, Integer xActionId, String event, LocalDateTime time, String thread, String level, String className, Integer line, String msg) {
         this.id = id == null ? null : new SimpleObjectProperty(id.intValue());
         this.jobId = jobId == null ? null : new SimpleObjectProperty(jobId.intValue());
         this.xActionId = xActionId == null ? null : new SimpleObjectProperty(xActionId.intValue());

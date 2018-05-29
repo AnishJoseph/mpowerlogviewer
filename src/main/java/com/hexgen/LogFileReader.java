@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,18 +22,20 @@ public class LogFileReader extends Thread {
     private boolean shutdown = false;
     private String logFilename;
     private boolean tail;
+    private Map<Integer, Boolean> incompleteJobs;
 
 
-    public LogFileReader(ObservableList<LogRecord> masterData, String logFilename, boolean tail) {
+    public LogFileReader(ObservableList<LogRecord> masterData, String logFilename, boolean tail, Map<Integer, Boolean> incompleteJobs) {
         this.masterData = masterData;
         this.logFilename = logFilename;
         this.tail = tail;
+        this.incompleteJobs = incompleteJobs;
     }
 
-    private Long convertToLong(String value){
+    private Integer convertToInteger(String value){
         value = value.trim();
         if(value.isEmpty())return null;
-        return Long.parseLong(value);
+        return Integer.parseInt(value);
     }
 
     public void run() {
@@ -44,15 +47,15 @@ public class LogFileReader extends Thread {
         try {
             fs = new FileInputStream(logFilename);
             br = new BufferedReader(new InputStreamReader(fs));
-            Long recordNumber = 0L;
+            Integer recordNumber = 0;
             while(!shutdown) {
                 if((line = br.readLine()) != null){
                     recordNumber++;
                     Matcher matcher = pattern.matcher(line);
                     if(matcher.matches()) {
-                        Long jobId = convertToLong(matcher.group(3));
-                        Long xActionId = convertToLong(matcher.group(4));
-                        Long lineNumber = convertToLong(matcher.group(10));
+                        Integer jobId = convertToInteger(matcher.group(3));
+                        Integer xActionId = convertToInteger(matcher.group(4));
+                        Integer lineNumber = convertToInteger(matcher.group(10));
                         LocalDateTime localDateTime = LocalDateTime.parse(matcher.group(6), formatter);
 //                        Camel (hexContext) thread #0 - JmsConsumer[p1]
                         String threadName = matcher.group(7).trim();
@@ -72,6 +75,12 @@ public class LogFileReader extends Thread {
                             addlInfo = new StringBuffer();
                         }
                         logRecord = new LogRecord(recordNumber, matcher.group(1).trim(),matcher.group(2).trim(),jobId,xActionId,matcher.group(5).trim(),localDateTime,threadName,matcher.group(8).trim(),matcher.group(9).trim(),lineNumber,matcher.group(11).trim());
+                        if(jobId != null && !incompleteJobs.containsKey(jobId)){
+                            incompleteJobs.put(jobId, true);
+                        }
+                        if(matcher.group(11).startsWith("Job Completed: Transaction leg") && jobId != null){
+                            incompleteJobs.put(jobId, false);
+                        }
                         Matcher exceptionMatcher = ExceptionPattern.matcher(matcher.group(11));
                         if(exceptionMatcher.matches()) {
                             logRecord.setException(true);

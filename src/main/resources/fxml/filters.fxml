@@ -8,6 +8,8 @@
     <Label text="Filters" fx:id="title"></Label>
     <CheckBox fx:id="exceptionChkbox" text="Show Exceptions" onAction="#showExceptionsClicked"/>
 
+    <CheckBox fx:id="incompleteJobsChkbox" text="Show Incomplete Jobs" onAction="#incompleteJobsChkBoxClicked"/>
+
     <CheckBox fx:id="tidChkbox" text="Thread ID Filter" onAction="#tidChkBoxClicked"/>
     <TextField fx:id="tidText" visible="false"/>
 
