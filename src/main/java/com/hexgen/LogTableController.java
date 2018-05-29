@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -500,8 +501,10 @@ public class LogTableController extends Thread{
         });
     }
 
-    private void filterForIncompleteJobs(List<Integer> searchSpec, boolean firstCheck) {
+    private void filterForIncompleteJobs(Map<Integer, Boolean> incompleteJobs, boolean firstCheck) {
         filteredData.setPredicate(logRecord -> {
+            List<Integer> jobids = incompleteJobs.entrySet().stream().filter(Map.Entry::getValue).map(Map.Entry::getKey).collect(Collectors.toList());
+
 
             if(firstCheck) {
                 logRecord.setHidden(false);
@@ -510,7 +513,7 @@ public class LogTableController extends Thread{
                     return  false;
                 }
             }
-            if (logRecord.jobIdProperty() != null && searchSpec.contains(logRecord.getJobId())) {
+            if (logRecord.jobIdProperty() != null && jobids.contains(logRecord.getJobId())) {
                 logRecord.setHidden(false);
                 return true;
             }
@@ -547,7 +550,7 @@ public class LogTableController extends Thread{
             if(filterName.equals("exceptions"))
                 filterForExceptions(firstCheck);
             if(filterName.equals("incompleteJobs"))
-                filterForIncompleteJobs((List<Integer>) filter.getSearchSpec(), firstCheck);
+                filterForIncompleteJobs((Map<Integer, Boolean>) filter.getSearchSpec(), firstCheck);
 
 
 
@@ -578,5 +581,11 @@ public class LogTableController extends Thread{
 
     public void setFilterController(FilterController filterController) {
         this.filterController = filterController;
+    }
+
+    public void incompleteJobsChanged() {
+        if(filters.get("incompleteJobs").isEnabled()){
+            filter();
+        }
     }
 }

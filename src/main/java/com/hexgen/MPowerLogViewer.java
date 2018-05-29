@@ -68,12 +68,12 @@ public class MPowerLogViewer extends Application {
             Map<Integer, Boolean> incompleteJobs = new HashMap<>();
 
 
-            LogFileReader logFileReader = new LogFileReader(masterData, logFilename, tail, incompleteJobs);
 
             FXMLLoader logTableLoader = new FXMLLoader(MPowerLogViewer.class.getResource("/fxml/LogTable.fxml"));
             LogTableController logTableController = new LogTableController(masterData, tail);
             logTableLoader.setController(logTableController);
             AnchorPane logRecordsView = logTableLoader.load();
+            LogFileReader logFileReader = new LogFileReader(masterData, logFilename, tail, incompleteJobs, logTableController);
 
             Tab tab = new Tab();
             tab.setText(logFilename);

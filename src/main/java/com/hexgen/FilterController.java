@@ -365,8 +365,7 @@ public class FilterController extends Thread{
     public void incompleteJobsChkBoxClicked(ActionEvent actionEvent) {
         filters.get("incompleteJobs").setEnabled(incompleteJobsChkbox.isSelected());
         if(incompleteJobsChkbox.isSelected()) {
-            List<Integer> jobids = incompleteJobs.entrySet().stream().filter(Map.Entry::getValue).map(Map.Entry::getKey).collect(Collectors.toList());
-            filters.get("incompleteJobs").setSearchSpec(jobids);
+            filters.get("incompleteJobs").setSearchSpec(incompleteJobs);
         }
         logTableController.filter();
     }

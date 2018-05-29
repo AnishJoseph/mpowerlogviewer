@@ -23,13 +23,17 @@ public class LogFileReader extends Thread {
     private String logFilename;
     private boolean tail;
     private Map<Integer, Boolean> incompleteJobs;
+    private boolean firstSleepDone = false;
+    private LogTableController logTableController;
+    boolean incompleteJobsChanged = false;
 
 
-    public LogFileReader(ObservableList<LogRecord> masterData, String logFilename, boolean tail, Map<Integer, Boolean> incompleteJobs) {
+    public LogFileReader(ObservableList<LogRecord> masterData, String logFilename, boolean tail, Map<Integer, Boolean> incompleteJobs, LogTableController logTableController) {
         this.masterData = masterData;
         this.logFilename = logFilename;
         this.tail = tail;
         this.incompleteJobs = incompleteJobs;
+        this.logTableController = logTableController;
     }
 
     private Integer convertToInteger(String value){
@@ -77,9 +81,11 @@ public class LogFileReader extends Thread {
                         logRecord = new LogRecord(recordNumber, matcher.group(1).trim(),matcher.group(2).trim(),jobId,xActionId,matcher.group(5).trim(),localDateTime,threadName,matcher.group(8).trim(),matcher.group(9).trim(),lineNumber,matcher.group(11).trim());
                         if(jobId != null && !incompleteJobs.containsKey(jobId)){
                             incompleteJobs.put(jobId, true);
+                            incompleteJobsChanged = true;
                         }
                         if(matcher.group(11).startsWith("Job Completed: Transaction leg") && jobId != null){
                             incompleteJobs.put(jobId, false);
+                            incompleteJobsChanged = true;
                         }
                         Matcher exceptionMatcher = ExceptionPattern.matcher(matcher.group(11));
                         if(exceptionMatcher.matches()) {
@@ -91,7 +97,14 @@ public class LogFileReader extends Thread {
                         addlInfo.append("\n");
                     }
                 } else {
+                    if(firstSleepDone){
+                        if(incompleteJobsChanged){
+                            logTableController.incompleteJobsChanged();
+                        }
+                    }
                     sleep(100);
+                    firstSleepDone = true;
+                    incompleteJobsChanged = false;
                 }
 
             }
