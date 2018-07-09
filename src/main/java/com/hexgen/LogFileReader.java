@@ -97,6 +97,10 @@ public class LogFileReader extends Thread {
                         addlInfo.append("\n");
                     }
                 } else {
+                    if(!tail){
+                        System.out.println("All records read - returning");
+                        return;
+                    }
                     if(firstSleepDone){
                         if(incompleteJobsChanged){
                             logTableController.incompleteJobsChanged();

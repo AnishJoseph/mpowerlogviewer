@@ -9,6 +9,10 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.Popup;
+import javafx.util.Callback;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -75,6 +79,64 @@ public class LogTableController extends Thread{
      */
     @FXML
     private void initialize() {
+        MenuGenerator menuGeneratorForThread =  new MenuGenerator(){
+            @Override
+            public ContextMenu getMenu(LogRecord logRecord) {
+                ContextMenu contextMenu = new ContextMenu();
+                if(logRecord == null || logRecord.threadProperty() == null) return  null;
+
+                MenuItem openItem = new MenuItem("Filter on ThreadID");
+                contextMenu.getItems().add(openItem);
+                openItem.setOnAction(t -> {
+                    filterController.addThreadFilter(logRecord.getThread());
+                });
+
+                if(logRecord.jobIdProperty()  != null) {
+                    MenuItem combination = new MenuItem("Filter on ThreadID & JobID");
+                    contextMenu.getItems().add(combination);
+                    combination.setOnAction(t -> {
+                        if(thread != null && jobId != null) {
+                            filterController.addThreadFilter(logRecord.getThread());
+                            filterController.addJobIdFilter(logRecord.getJobId().toString());
+                        }
+                    });
+                }
+                return contextMenu;
+            }
+        };
+        MenuGenerator menuGeneratorForXaction = new MenuGenerator(){
+            @Override
+            public ContextMenu getMenu(LogRecord logRecord) {
+                ContextMenu contextMenu = new ContextMenu();
+                if(logRecord == null || logRecord.xActionIdProperty() == null) return  null;
+
+                MenuItem openItem = new MenuItem("Filter on XID and JobId");
+                contextMenu.getItems().add(openItem);
+                openItem.setOnAction(t -> {
+                    filters.get("xActionId").setEnabled(true);
+                    filters.get("xActionId").setSearchSpec(logRecord.getxActionId().toString());
+                    filterController.addJobIdFilter(logRecord.getJobId().toString());
+                });
+                return contextMenu;
+            }
+        };
+
+        MenuGenerator menuGeneratorForJobId = new MenuGenerator(){
+            @Override
+            public ContextMenu getMenu(LogRecord logRecord) {
+                ContextMenu contextMenu = new ContextMenu();
+                if(logRecord == null || logRecord.jobIdProperty() == null) return  null;
+
+                MenuItem openItem = new MenuItem("Filter on JobID");
+                contextMenu.getItems().add(openItem);
+                openItem.setOnAction(t -> {
+                    filterController.addJobIdFilter(logRecord.getJobId().toString());
+                });
+
+                return contextMenu;
+            }
+        };
+
         filters.put("incompleteJobs", new Filter(false, ""));
         filters.put("timeAfter", new Filter(false, ""));
         filters.put("timeBefore", new Filter(false, ""));
@@ -101,85 +163,56 @@ public class LogTableController extends Thread{
         company.setCellValueFactory(cellData -> cellData.getValue().companyProperty());
         rowNum.setCellValueFactory(cellData -> cellData.getValue().idProperty());
         xActionId.setCellValueFactory(cellData -> cellData.getValue().xActionIdProperty());
-        xActionId.setCellFactory(col -> {
-            final TableCell tableCell = new TableCellWithMenu(new MenuGenerator(){
-                @Override
-                public ContextMenu getMenu(LogRecord logRecord) {
-                    ContextMenu contextMenu = new ContextMenu();
-                    if(logRecord == null || logRecord.xActionIdProperty() == null) return  null;
-
-                    MenuItem openItem = new MenuItem("Filter on XID and JobId");
-                    contextMenu.getItems().add(openItem);
-                    openItem.setOnAction(t -> {
-                        filters.get("xActionId").setEnabled(true);
-                        filters.get("xActionId").setSearchSpec(logRecord.getxActionId().toString());
-                        filterController.addJobIdFilter(logRecord.getJobId().toString());
-                    });
-                    return contextMenu;
-                }
-            });
-            return tableCell;
-        });
+        xActionId.setCellFactory(new MenuCallback<>(menuGeneratorForXaction));
 
 
         line.setCellValueFactory(cellData -> cellData.getValue().lineProperty());
         event.setCellValueFactory(cellData -> cellData.getValue().eventProperty());
         time.setCellValueFactory(cellData -> cellData.getValue().timeProperty());
         jobId.setCellValueFactory(cellData -> cellData.getValue().jobIdProperty());
-        jobId.setCellFactory(col -> {
-            final TableCell tableCell = new TableCellWithMenu(new MenuGenerator(){
-                @Override
-                public ContextMenu getMenu(LogRecord logRecord) {
-                    ContextMenu contextMenu = new ContextMenu();
-                    if(logRecord == null || logRecord.jobIdProperty() == null) return  null;
-
-                    MenuItem openItem = new MenuItem("Filter on JobID");
-                    contextMenu.getItems().add(openItem);
-                    openItem.setOnAction(t -> {
-                        filterController.addJobIdFilter(logRecord.getJobId().toString());
-                    });
-
-                    return contextMenu;
-                }
-            });
-            return tableCell;
-        });
+        jobId.setCellFactory(new MenuCallback<>(menuGeneratorForJobId));
 
         className.setCellValueFactory(cellData -> cellData.getValue().classNameProperty());
 
         thread.setCellValueFactory(cellData -> cellData.getValue().threadProperty());
-        thread.setCellFactory(col -> {
-            final TableCell tableCell = new TableCellWithMenu(new MenuGenerator(){
-                @Override
-                public ContextMenu getMenu(LogRecord logRecord) {
-                    ContextMenu contextMenu = new ContextMenu();
-                    if(logRecord == null || logRecord.threadProperty() == null) return  null;
-
-                    MenuItem openItem = new MenuItem("Filter on ThreadID");
-                    contextMenu.getItems().add(openItem);
-                    openItem.setOnAction(t -> {
-                        filterController.addThreadFilter(logRecord.getThread());
-                    });
-
-                    if(logRecord.jobIdProperty()  != null) {
-                        MenuItem combination = new MenuItem("Filter on ThreadID & JobID");
-                        contextMenu.getItems().add(combination);
-                        combination.setOnAction(t -> {
-                            if(thread != null && jobId != null) {
-                                filterController.addThreadFilter(logRecord.getThread());
-                                filterController.addJobIdFilter(logRecord.getJobId().toString());
-                            }
-                        });
-                    }
-                    return contextMenu;
-                }
-            });
-            return tableCell;
-        });
+        thread.setCellFactory(new MenuCallback<>(menuGeneratorForThread));
 
         msg.setCellValueFactory(cellData -> cellData.getValue().msgProperty());
         msg.setCellFactory(col -> {
-            return new MsgTableCell();
+            TextFieldTableCell msgTableCell = new TextFieldTableCell();
+            msgTableCell.addEventHandler(MouseEvent.MOUSE_CLICKED, event1 -> {
+                StringBuffer sb = new StringBuffer();
+                LogRecord logRecord = (LogRecord) ((TableRow) msgTableCell.getParent()).getItem();
+                if (logRecord != null) {
+                    TextArea textArea = new TextArea();
+                    textArea.setEditable(false);
+                    textArea.setWrapText(true);
+                    sb.append("Time \t\t: " + logRecord.getTimeFormatted() + "\n");
+                    sb.append("Thread ID \t: " + logRecord.getThread() + "\n");
+                    sb.append("Job ID \t\t: " + logRecord.getJobIdAsString() + "\n");
+                    sb.append("XID ID \t\t: " + logRecord.getXidAsString() + "\n");
+                    sb.append("User \t\t: " + logRecord.getUser() + "\n");
+                    sb.append("Level \t\t: " + logRecord.getLevel() + "\n");
+                    sb.append("Event \t\t: " + logRecord.getEvent() + "\n");
+                    sb.append("Class \t\t: " + logRecord.getClassName() + "\n");
+                    sb.append("Line \t\t\t: " + logRecord.getLine() + "\n");
+                    sb.append("Message \t\t: " + logRecord.getMsg() + "\n");
+                    if(logRecord.getAddlInfo() != null) {
+                        sb.append(logRecord.getAddlInfo());
+                    }
+                    textArea.setText(sb.toString());
+                    textArea.setPrefWidth(1000);
+                    textArea.setPrefHeight(600);
+                    textArea.setFont(msgTableCell.getFont());
+                    Popup popup = new Popup();
+                    popup.centerOnScreen();
+                    popup.setAutoHide(true);
+                    popup.getContent().add(textArea);
+                    popup.show(msgTableCell.getScene().getWindow());
+                }
+            });
+
+            return msgTableCell;
         });
 
         time.setCellFactory(col -> new TableCell<LogRecord, LocalDateTime>() {
@@ -586,6 +619,23 @@ public class LogTableController extends Thread{
     public void incompleteJobsChanged() {
         if(filters.get("incompleteJobs").isEnabled()){
             filter();
+        }
+    }
+
+    private class MenuCallback<T> implements Callback<TableColumn<LogRecord, T>, TableCell<LogRecord, T>> {
+        private  MenuGenerator menuGenerator;
+        public MenuCallback(MenuGenerator menuGenerator){
+            this.menuGenerator = menuGenerator;
+        }
+        @Override
+        public TableCell<LogRecord, T> call(TableColumn<LogRecord, T> col) {
+            final TableCell tableCell = new TextFieldTableCell();
+            tableCell.addEventHandler(MouseEvent.MOUSE_CLICKED, event1 -> {
+                LogRecord logRecord = (LogRecord) ((TableRow) tableCell.getParent()).getItem();
+                ContextMenu menu = menuGenerator.getMenu(logRecord);
+                if (menu != null) menu.show(tableCell.getParent(), event1.getScreenX(), event1.getScreenY());
+            });
+            return tableCell;
         }
     }
 }
