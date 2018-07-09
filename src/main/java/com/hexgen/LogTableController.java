@@ -120,7 +120,6 @@ public class LogTableController extends Thread{
                 return contextMenu;
             }
         };
-
         MenuGenerator menuGeneratorForJobId = new MenuGenerator(){
             @Override
             public ContextMenu getMenu(LogRecord logRecord) {
@@ -183,6 +182,7 @@ public class LogTableController extends Thread{
             msgTableCell.addEventHandler(MouseEvent.MOUSE_CLICKED, event1 -> {
                 StringBuffer sb = new StringBuffer();
                 LogRecord logRecord = (LogRecord) ((TableRow) msgTableCell.getParent()).getItem();
+                ((SelectionModel)logTable.getSelectionModel()).select(msgTableCell.getIndex());
                 if (logRecord != null) {
                     TextArea textArea = new TextArea();
                     textArea.setEditable(false);
@@ -630,10 +630,10 @@ public class LogTableController extends Thread{
         @Override
         public TableCell<LogRecord, T> call(TableColumn<LogRecord, T> col) {
             final TableCell tableCell = new TextFieldTableCell();
-            tableCell.addEventHandler(MouseEvent.MOUSE_CLICKED, event1 -> {
+            tableCell.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
                 LogRecord logRecord = (LogRecord) ((TableRow) tableCell.getParent()).getItem();
                 ContextMenu menu = menuGenerator.getMenu(logRecord);
-                if (menu != null) menu.show(tableCell.getParent(), event1.getScreenX(), event1.getScreenY());
+                if (menu != null) menu.show(tableCell.getParent(), event.getScreenX(), event.getScreenY());
             });
             return tableCell;
         }
