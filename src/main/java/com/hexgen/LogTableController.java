@@ -9,6 +9,7 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Popup;
 import javafx.util.Callback;
@@ -177,10 +178,10 @@ public class LogTableController extends Thread{
 
         msg.setCellValueFactory(cellData -> cellData.getValue().msgProperty());
         msg.setCellFactory(col -> {
-            TableCell msgTableCell = new TableCell<String, String>()
+            TableCell msgTableCell = new TextFieldTableCell<String, String>()
             {
                 @Override
-                protected void updateItem(String item, boolean empty)
+                public void updateItem(String item, boolean empty)
                 {
                     super.updateItem(item, empty);
                     setText( item );
@@ -639,7 +640,7 @@ public class LogTableController extends Thread{
         }
         @Override
         public TableCell<LogRecord, T> call(TableColumn<LogRecord, T> col) {
-            final TableCell tableCell = new TableCell();
+            final TableCell tableCell = new TextFieldTableCell();
             tableCell.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
                 LogRecord logRecord = (LogRecord) ((TableRow) tableCell.getParent()).getItem();
                 ContextMenu menu = menuGenerator.getMenu(logRecord);
