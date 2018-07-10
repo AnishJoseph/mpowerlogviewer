@@ -9,7 +9,6 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Popup;
 import javafx.util.Callback;
@@ -178,7 +177,18 @@ public class LogTableController extends Thread{
 
         msg.setCellValueFactory(cellData -> cellData.getValue().msgProperty());
         msg.setCellFactory(col -> {
-            TextFieldTableCell msgTableCell = new TextFieldTableCell();
+            TableCell msgTableCell = new TableCell<String, String>()
+            {
+                @Override
+                protected void updateItem(String item, boolean empty)
+                {
+                    super.updateItem(item, empty);
+                    setText( item );
+                    Tooltip t = new Tooltip(item);
+                    t.setStyle("-fx-font-size: 14px; -fx-background-color:yellow; -fx-text-fill:black");
+                    setTooltip(t);
+                }
+            };
             msgTableCell.addEventHandler(MouseEvent.MOUSE_CLICKED, event1 -> {
                 StringBuffer sb = new StringBuffer();
                 LogRecord logRecord = (LogRecord) ((TableRow) msgTableCell.getParent()).getItem();
@@ -629,7 +639,7 @@ public class LogTableController extends Thread{
         }
         @Override
         public TableCell<LogRecord, T> call(TableColumn<LogRecord, T> col) {
-            final TableCell tableCell = new TextFieldTableCell();
+            final TableCell tableCell = new TableCell();
             tableCell.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
                 LogRecord logRecord = (LogRecord) ((TableRow) tableCell.getParent()).getItem();
                 ContextMenu menu = menuGenerator.getMenu(logRecord);
